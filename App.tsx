@@ -45,7 +45,7 @@ const INITIAL_STATE: AppState = {
 };
 
 const App: React.FC = () => {
-  const { currentUser } = useAuth();
+  const { currentUser, logout } = useAuth();
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -657,14 +657,12 @@ const App: React.FC = () => {
           {activeTab === 'share' && <ShareView state={appData} theme={appData.settings.theme} t={t} />}
           {activeTab === 'ajuda' && <HelpView theme={appData.settings.theme} t={t} />}
           {activeTab === 'settings' && <Settings settings={appData.settings} onUpdate={(s) => setAppData(prev => ({ ...prev, settings: { ...prev.settings, ...s } }))} theme={appData.settings.theme} appState={appData} onExport={handleExport} onImport={handleImport} onReset={() => setAppData(() => INITIAL_STATE)} onUnlockAll={unlockAllAchievements} onGenerateTestData={generateTestData} onLogout={async () => {
-            const { logout } = await import('./contexts/AuthContext');
-            // We need to use the useAuth hook, so let's get it from the context
             try {
-              const auth = await import('./services/firebase');
-              await auth.auth.signOut();
+              await logout();
               setCurrentUser(null);
             } catch (error) {
               console.error('Logout error:', error);
+              alert('Erro ao fazer logout. Tente novamente.');
             }
           }} t={t} />}
         </div>
