@@ -16,9 +16,12 @@ import ShareView from './components/ShareView';
 import HelpView from './components/HelpView';
 import ExamsView from './components/ExamsView';
 import ManageSubjectsView from './components/ManageSubjectsView';
+import LoginPage from './components/LoginPage';
 import { TRANSLATIONS } from './translations';
 import { ACHIEVEMENTS } from './constants/achievements';
-import { getData, saveData } from './services/db';
+import { getData, saveData, setCurrentUser } from './services/db';
+import { loadFromFirestore } from './services/firestore';
+import { useAuth } from './contexts/AuthContext';
 import { getTodayISO } from './utils';
 
 const DEFAULT_COLORS = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#0ea5e9', '#8b5cf6', '#f97316', '#84cc16', '#ec4899', '#64748b'];
@@ -42,6 +45,7 @@ const INITIAL_STATE: AppState = {
 };
 
 const App: React.FC = () => {
+  const { currentUser } = useAuth();
   const [isDataLoaded, setIsDataLoaded] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -69,19 +73,60 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const loadData = async () => {
+      if (!currentUser) {
+        // Not logged in, load from IndexedDB only
+        try {
+          let saved = await getData('focus-app-data');
+          if (saved) {
+            setAppDataState({ ...INITIAL_STATE, ...saved });
+          }
+        } catch (e) {
+          console.error('Falha ao carregar dados:', e);
+        } finally {
+          setIsDataLoaded(true);
+        }
+        return;
+      }
+
+      // User is logged in, set user ID for sync
+      setCurrentUser(currentUser.uid);
+
       try {
-        let saved = await getData('focus-app-data');
-        if (saved) {
-          setAppDataState({ ...INITIAL_STATE, ...saved });
+        // Try to load from Firestore first
+        const firestoreData = await loadFromFirestore(currentUser.uid);
+        
+        if (firestoreData) {
+          // Firestore data exists, use it
+          setAppDataState({ ...INITIAL_STATE, ...firestoreData });
+          // Also save to local IndexedDB for offline access
+          await saveData('focus-app-data', firestoreData);
+        } else {
+          // No Firestore data, check IndexedDB for local data
+          let saved = await getData('focus-app-data');
+          if (saved) {
+            setAppDataState({ ...INITIAL_STATE, ...saved });
+            // Sync local data to Firestore
+            await saveData('focus-app-data', saved);
+          }
         }
       } catch (e) {
         console.error('Falha ao carregar dados:', e);
+        // Fallback to IndexedDB on error
+        try {
+          let saved = await getData('focus-app-data');
+          if (saved) {
+            setAppDataState({ ...INITIAL_STATE, ...saved });
+          }
+        } catch (localError) {
+          console.error('Falha ao carregar dados locais:', localError);
+        }
       } finally {
         setIsDataLoaded(true);
       }
     };
+    
     loadData();
-  }, []);
+  }, [currentUser]);
 
   const setAppData = useCallback((updater: (prev: AppState) => AppState) => {
     setAppDataState(prev => {
@@ -519,6 +564,11 @@ const App: React.FC = () => {
     );
   }
 
+  // Show login page if user is not authenticated
+  if (!currentUser) {
+    return <LoginPage />;
+  }
+
   return (
     <div className={`flex h-screen overflow-hidden transition-all duration-700 ${appData.settings.theme === 'light' ? 'bg-[#f4f4f5] text-zinc-900' : 'bg-[#09090b] text-[#f4f4f5]'}`}>
       <div className={`md:hidden fixed top-0 left-0 right-0 h-16 border-b z-50 flex items-center justify-between px-6 transition-colors ${appData.settings.theme === 'light' ? 'bg-white border-zinc-200' : 'bg-zinc-900 border-zinc-800'}`}>
@@ -606,7 +656,17 @@ const App: React.FC = () => {
           {activeTab === 'provas' && <ExamsView examDate={appData.examDate} examName={appData.examName} onUpdateExam={(n, d) => setAppData(prev => ({ ...prev, examName: n, examDate: d }))} theme={appData.settings.theme} t={t} />}
           {activeTab === 'share' && <ShareView state={appData} theme={appData.settings.theme} t={t} />}
           {activeTab === 'ajuda' && <HelpView theme={appData.settings.theme} t={t} />}
-          {activeTab === 'settings' && <Settings settings={appData.settings} onUpdate={(s) => setAppData(prev => ({ ...prev, settings: { ...prev.settings, ...s } }))} theme={appData.settings.theme} appState={appData} onExport={handleExport} onImport={handleImport} onReset={() => setAppData(() => INITIAL_STATE)} onUnlockAll={unlockAllAchievements} onGenerateTestData={generateTestData} t={t} />}
+          {activeTab === 'settings' && <Settings settings={appData.settings} onUpdate={(s) => setAppData(prev => ({ ...prev, settings: { ...prev.settings, ...s } }))} theme={appData.settings.theme} appState={appData} onExport={handleExport} onImport={handleImport} onReset={() => setAppData(() => INITIAL_STATE)} onUnlockAll={unlockAllAchievements} onGenerateTestData={generateTestData} onLogout={async () => {
+            const { logout } = await import('./contexts/AuthContext');
+            // We need to use the useAuth hook, so let's get it from the context
+            try {
+              const auth = await import('./services/firebase');
+              await auth.auth.signOut();
+              setCurrentUser(null);
+            } catch (error) {
+              console.error('Logout error:', error);
+            }
+          }} t={t} />}
         </div>
       </main>
     </div>

@@ -1,7 +1,14 @@
+import { syncToFirestore } from './firestore';
 
 const DB_NAME = 'FocusAppDB';
 const STORE_NAME = 'appData';
 const DB_VERSION = 1;
+
+let currentUserId: string | null = null;
+
+export const setCurrentUser = (userId: string | null) => {
+  currentUserId = userId;
+};
 
 export const initDB = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
@@ -26,7 +33,18 @@ export const saveData = async (key: string, data: any): Promise<void> => {
     const store = transaction.objectStore(STORE_NAME);
     const request = store.put(data, key);
 
-    request.onsuccess = () => resolve();
+    request.onsuccess = async () => {
+      // Sync to Firestore if user is authenticated
+      if (currentUserId && key === 'focus-app-data') {
+        try {
+          await syncToFirestore(currentUserId, data);
+        } catch (error) {
+          console.error('Failed to sync to Firestore:', error);
+          // Don't reject - local save was successful
+        }
+      }
+      resolve();
+    };
     request.onerror = () => reject(request.error);
   });
 };

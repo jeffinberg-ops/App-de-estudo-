@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { User, Moon, Sun, Monitor, Shield, Database, Download, Upload, Trophy, Clock, CheckSquare, Zap, Languages, Trash2, Settings as SettingsIcon, Flame, Terminal, Play, Key, X, Check, Sparkles } from 'lucide-react';
+import { User, Moon, Sun, Monitor, Shield, Database, Download, Upload, Trophy, Clock, CheckSquare, Zap, Languages, Trash2, Settings as SettingsIcon, Flame, Terminal, Play, Key, X, Check, Sparkles, LogOut } from 'lucide-react';
 import { UserSettings, AppState, QuestionData, Language } from '../types';
 import { formatTimeShort, calculateStreak } from '../utils';
 
@@ -14,12 +14,13 @@ interface SettingsProps {
   onReset: () => void;
   onUnlockAll?: () => void;
   onGenerateTestData?: () => void;
+  onLogout?: () => void;
   t: any;
 }
 
 const TEST_MODE_PASSWORD = '705011FocusL';
 
-const Settings: React.FC<SettingsProps> = ({ settings, onUpdate, theme, appState, onExport, onImport, onReset, onUnlockAll, onGenerateTestData, t }) => {
+const Settings: React.FC<SettingsProps> = ({ settings, onUpdate, theme, appState, onExport, onImport, onReset, onUnlockAll, onGenerateTestData, onLogout, t }) => {
   const isLight = theme === 'light';
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -127,6 +128,29 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdate, theme, appState
             </div>
           </div>
         </div>
+
+        {onLogout && (
+          <div className={`p-6 rounded-[2rem] shadow-lg transition-all duration-500 ${isLight ? 'bg-white border border-zinc-100 shadow-zinc-200/40' : 'glass-panel'}`}>
+            <div className="flex items-center gap-3 mb-6">
+              <div className={`p-2.5 rounded-xl ${isLight ? 'bg-rose-50 text-rose-600' : 'bg-rose-500/10 text-rose-400'}`}>
+                <LogOut size={18} />
+              </div>
+              <h2 className={`text-lg font-bold ${isLight ? 'text-zinc-800' : 'text-white'}`}>{t.authSection || 'Conta'}</h2>
+            </div>
+            <div className="space-y-4">
+              <p className={`text-sm ${isLight ? 'text-zinc-600' : 'text-zinc-400'}`}>
+                {t.logoutDescription || 'Seus dados estão sincronizados com a nuvem. Você pode fazer logout e entrar novamente de qualquer dispositivo.'}
+              </p>
+              <button 
+                onClick={onLogout}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-rose-600 hover:bg-rose-700 text-white font-bold rounded-xl transition-all shadow-md active:scale-95"
+              >
+                <LogOut size={18} />
+                <span>{t.logout || 'Sair da Conta'}</span>
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className={`p-6 rounded-[2rem] shadow-lg transition-all duration-500 ${isLight ? 'bg-white border border-zinc-100 shadow-zinc-200/40' : 'glass-panel'}`}>
           <div className="flex items-center gap-3 mb-6">
