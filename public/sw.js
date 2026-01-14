@@ -1,4 +1,3 @@
-
 const CACHE_NAME = 'focus-v1';
 const ASSETS = [
   '/',
