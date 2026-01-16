@@ -11,7 +11,8 @@
     "test:joao-simple": "npx tsx test-joao-simulation.ts",
     "test:joao-future": "npx tsx test-joao-future-reviews.ts",
     "test:joao-reset": "npx tsx test-joao-reset-scenario.ts",
-    "test:joao-continue-error": "npx tsx test-joao-continue-error.ts"
+    "test:joao-continue-error": "npx tsx test-joao-continue-error.ts",
+    "test:joao-adaptive": "npx tsx test-joao-adaptive-recovery.ts"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",

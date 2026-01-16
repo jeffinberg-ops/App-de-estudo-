@@ -55,7 +55,9 @@ function simulateReviewScheduling(
     correctTotal: 0,
     incorrectTotal: 0,
     dueAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    updatedAt: new Date().toISOString(),
+    inRecoveryMode: false,
+    recoveryAttempts: 0
   };
   
   const sessions: SimulationSession[] = [];
@@ -78,19 +80,80 @@ function simulateReviewScheduling(
     // Edge case: when no questions have been answered yet (cumulativeTotal = 0), default to 0% accuracy
     const cumulativeAccuracy = cumulativeTotal > 0 ? (newCorrectTotal / cumulativeTotal) : 0;
     
-    // Check if accuracy < 40%, reset reviewCount to 1
-    let newReviewCount;
-    if (cumulativeAccuracy < 0.4) {
-      newReviewCount = 1;
+    // Calculate current session accuracy (0-1 range)
+    const sessionAccuracyRatio = totalQuestions > 0 ? (correct / totalQuestions) : 1.0;
+    
+    // Adaptive Recovery Logic
+    let inRecoveryMode = currentReviewState.inRecoveryMode || false;
+    let previousInterval = currentReviewState.previousInterval;
+    let recoveryAttempts = currentReviewState.recoveryAttempts || 0;
+    let newReviewCount = currentReviewState.reviewCount;
+    
+    // Detect performance spike: session accuracy significantly lower than cumulative
+    const isPerformanceSpike = 
+      !inRecoveryMode && 
+      cumulativeAccuracy >= 0.6 && 
+      sessionAccuracyRatio <= 0.4 &&
+      currentReviewState.reviewCount >= 3;
+    
+    if (isPerformanceSpike) {
+      // Enter recovery mode
+      inRecoveryMode = true;
+      recoveryAttempts = 0;
+      const baseInterval = getBaseInterval(currentReviewState.reviewCount);
+      const difficultyMult = getDifficultyMultiplier(cumulativeAccuracy);
+      previousInterval = Math.max(1, Math.min(180, Math.round(baseInterval * difficultyMult)));
+      newReviewCount = currentReviewState.reviewCount;
+    } else if (inRecoveryMode) {
+      // Already in recovery mode
+      const isRecovering = sessionAccuracyRatio >= 0.7;
+      const isWorsening = sessionAccuracyRatio < 0.5;
+      
+      if (isRecovering) {
+        // Successfully recovered!
+        inRecoveryMode = false;
+        recoveryAttempts = 0;
+        newReviewCount = currentReviewState.reviewCount + 1;
+      } else if (isWorsening) {
+        // Still struggling
+        recoveryAttempts = (currentReviewState.recoveryAttempts || 0) + 1;
+        newReviewCount = currentReviewState.reviewCount;
+      } else {
+        // Marginal performance
+        recoveryAttempts = currentReviewState.recoveryAttempts || 0;
+        newReviewCount = currentReviewState.reviewCount;
+      }
     } else {
-      newReviewCount = currentReviewState.reviewCount + 1;
+      // Normal mode
+      if (cumulativeAccuracy < 0.4) {
+        newReviewCount = 1;
+      } else {
+        newReviewCount = currentReviewState.reviewCount + 1;
+      }
     }
     
-    // Calculate next review date
-    const baseInterval = getBaseInterval(newReviewCount);
-    const difficultyMult = getDifficultyMultiplier(cumulativeAccuracy);
-    // Apply 180-day cap after multiplier to ensure intervals never exceed maximum
-    const intervalDays = Math.max(1, Math.min(180, Math.round(baseInterval * difficultyMult)));
+    // Calculate interval based on mode
+    let intervalDays;
+    let baseInterval = 0;
+    let difficultyMult = 1.0;
+    
+    if (inRecoveryMode) {
+      if (recoveryAttempts === 0) {
+        intervalDays = 3;
+      } else if (recoveryAttempts === 1) {
+        intervalDays = 2;
+      } else {
+        intervalDays = 1;
+      }
+    } else if (currentReviewState.inRecoveryMode && !inRecoveryMode) {
+      // Just recovered!
+      intervalDays = previousInterval || 7;
+    } else {
+      // Normal interval calculation
+      baseInterval = getBaseInterval(newReviewCount);
+      difficultyMult = getDifficultyMultiplier(cumulativeAccuracy);
+      intervalDays = Math.max(1, Math.min(180, Math.round(baseInterval * difficultyMult)));
+    }
     
     const nextReviewDate = new Date(currentReviewState.updatedAt);
     nextReviewDate.setDate(nextReviewDate.getDate() + intervalDays);
@@ -101,7 +164,11 @@ function simulateReviewScheduling(
       correctTotal: newCorrectTotal,
       incorrectTotal: newIncorrectTotal,
       dueAt: nextReviewDate.toISOString(),
-      updatedAt: new Date().toISOString()
+      updatedAt: new Date().toISOString(),
+      inRecoveryMode,
+      previousInterval: inRecoveryMode ? previousInterval : undefined,
+      recoveryAttempts: inRecoveryMode ? recoveryAttempts : undefined,
+      lastSessionAccuracy: sessionAccuracyRatio
     };
     
     // Track when João reaches 10 correct in a session

@@ -314,30 +314,97 @@ const App: React.FC = () => {
         correctTotal: 0,
         incorrectTotal: 0,
         dueAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        inRecoveryMode: false,
+        recoveryAttempts: 0
       };
       
       // Update totals if questions were answered
       const newCorrectTotal = currentReviewState.correctTotal + correct;
       const newIncorrectTotal = currentReviewState.incorrectTotal + incorrect;
       
-      // Calculate accuracy
+      // Calculate cumulative accuracy
       const totalQuestions = newCorrectTotal + newIncorrectTotal;
-      const accuracy = totalQuestions > 0 ? newCorrectTotal / totalQuestions : 1.0;
+      const cumulativeAccuracy = totalQuestions > 0 ? newCorrectTotal / totalQuestions : 1.0;
       
-      // Reset logic: if accuracy < 40%, reset reviewCount to 1
-      let newReviewCount;
-      if (accuracy < 0.4) {
-        newReviewCount = 1;
+      // Calculate current session accuracy
+      const sessionTotal = correct + incorrect;
+      const sessionAccuracy = sessionTotal > 0 ? correct / sessionTotal : 1.0;
+      
+      // Adaptive Recovery Logic
+      let inRecoveryMode = currentReviewState.inRecoveryMode || false;
+      let previousInterval = currentReviewState.previousInterval;
+      let recoveryAttempts = currentReviewState.recoveryAttempts || 0;
+      let newReviewCount = currentReviewState.reviewCount;
+      
+      // Detect performance spike: session accuracy significantly lower than cumulative
+      // Only trigger if cumulative accuracy is good (>= 60%) and session is poor (<= 40%)
+      const isPerformanceSpike = 
+        !inRecoveryMode && 
+        cumulativeAccuracy >= 0.6 && 
+        sessionAccuracy <= 0.4 &&
+        currentReviewState.reviewCount >= 3; // Only for established topics
+      
+      if (isPerformanceSpike) {
+        // Enter recovery mode
+        inRecoveryMode = true;
+        recoveryAttempts = 0;
+        // Save current interval to restore later if recovery is successful
+        const baseInterval = getBaseInterval(currentReviewState.reviewCount);
+        const difficultyMult = getDifficultyMultiplier(cumulativeAccuracy);
+        previousInterval = Math.max(1, Math.min(180, Math.round(baseInterval * difficultyMult)));
+        // Don't increment review count when entering recovery
+        newReviewCount = currentReviewState.reviewCount;
+      } else if (inRecoveryMode) {
+        // Already in recovery mode, check if recovering or worsening
+        const isRecovering = sessionAccuracy >= 0.7; // Good performance
+        const isWorsening = sessionAccuracy < 0.5; // Still struggling
+        
+        if (isRecovering) {
+          // Successfully recovered! Restore previous interval and exit recovery mode
+          inRecoveryMode = false;
+          recoveryAttempts = 0;
+          // Restore review count and continue normal progression
+          newReviewCount = currentReviewState.reviewCount + 1;
+        } else if (isWorsening) {
+          // Still struggling, increment recovery attempts
+          recoveryAttempts = (currentReviewState.recoveryAttempts || 0) + 1;
+          newReviewCount = currentReviewState.reviewCount; // Don't advance
+        } else {
+          // Marginal performance (50-70%), stay in recovery but don't worsen
+          recoveryAttempts = currentReviewState.recoveryAttempts || 0;
+          newReviewCount = currentReviewState.reviewCount;
+        }
       } else {
-        newReviewCount = currentReviewState.reviewCount + 1;
+        // Normal mode: standard reset logic
+        if (cumulativeAccuracy < 0.4) {
+          newReviewCount = 1;
+        } else {
+          newReviewCount = currentReviewState.reviewCount + 1;
+        }
       }
       
-      // Calculate next review date
-      const baseInterval = getBaseInterval(newReviewCount);
-      const difficultyMult = getDifficultyMultiplier(accuracy);
-      // Apply 180-day cap after multiplier to ensure intervals never exceed maximum
-      const intervalDays = Math.max(1, Math.min(180, Math.round(baseInterval * difficultyMult)));
+      // Calculate interval based on mode
+      let intervalDays;
+      
+      if (inRecoveryMode) {
+        // Recovery mode: use short intervals that decrease with attempts
+        if (recoveryAttempts === 0) {
+          intervalDays = 3; // First recovery attempt: 3 days
+        } else if (recoveryAttempts === 1) {
+          intervalDays = 2; // Second attempt: 2 days
+        } else {
+          intervalDays = 1; // Subsequent attempts: 1 day minimum
+        }
+      } else if (currentReviewState.inRecoveryMode && !inRecoveryMode) {
+        // Just recovered! Restore previous interval
+        intervalDays = previousInterval || 7; // Fallback to 7 if not saved
+      } else {
+        // Normal interval calculation
+        const baseInterval = getBaseInterval(newReviewCount);
+        const difficultyMult = getDifficultyMultiplier(cumulativeAccuracy);
+        intervalDays = Math.max(1, Math.min(180, Math.round(baseInterval * difficultyMult)));
+      }
       
       const nextReviewDate = new Date();
       nextReviewDate.setDate(nextReviewDate.getDate() + intervalDays);
@@ -351,7 +418,11 @@ const App: React.FC = () => {
             correctTotal: newCorrectTotal,
             incorrectTotal: newIncorrectTotal,
             dueAt: nextReviewDate.toISOString(),
-            updatedAt: new Date().toISOString()
+            updatedAt: new Date().toISOString(),
+            inRecoveryMode,
+            previousInterval: inRecoveryMode ? previousInterval : undefined,
+            recoveryAttempts: inRecoveryMode ? recoveryAttempts : undefined,
+            lastSessionAccuracy: sessionAccuracy
           }
         }
       };

@@ -43,6 +43,11 @@ export interface ReviewState {
   incorrectTotal: number;
   dueAt: string; // ISO datetime
   updatedAt: string; // ISO datetime
+  // Adaptive recovery fields
+  inRecoveryMode?: boolean; // True when detecting performance spike
+  previousInterval?: number; // Interval before spike (to restore on recovery)
+  recoveryAttempts?: number; // Number of recovery attempts (0 = first attempt)
+  lastSessionAccuracy?: number; // Accuracy of the last session (for spike detection)
 }
 
 export interface ExamEvent {
