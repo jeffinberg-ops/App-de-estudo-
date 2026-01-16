@@ -92,18 +92,21 @@ export const parseTopicKey = (key: string): { subject: string; topic: string } =
  */
 export const getBaseInterval = (reviewCount: number): number => {
   if (reviewCount <= 1) return 1;
-  if (reviewCount === 2) return 3;
-  if (reviewCount === 3) return 7;
-  if (reviewCount === 4) return 14;
-  return 30; // 5+
+  // Exponential growth with base 1.7, capped at 180 days
+  const interval = Math.pow(1.7, reviewCount - 1);
+  return Math.min(180, Math.round(interval));
 };
 
 /**
- * Calculates the difficulty multiplier based on error rate.
+ * Calculates the difficulty multiplier based on accuracy (0-1 range).
  */
-export const getDifficultyMultiplier = (errorRate: number): number => {
-  const mult = 1 - 0.7 * errorRate;
-  return Math.max(0.3, Math.min(1, mult)); // clamp between 0.3 and 1
+export const getDifficultyMultiplier = (accuracy: number): number => {
+  // Clamp accuracy to valid range [0, 1]
+  const validAccuracy = Math.max(0, Math.min(1, accuracy));
+  // New formula that rewards high performance (>80%) with multiplier > 1.0
+  // Median performance results in multiplier <= 1.0
+  const mult = 0.6 + Math.pow(validAccuracy, 3) * 1.4;
+  return mult;
 };
 
 /**
