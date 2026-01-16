@@ -261,7 +261,7 @@ const ReviewView: React.FC<ReviewViewProps> = ({ reviewStates, theme = 'dark', t
                           {item.reviewState.inRecoveryMode && (
                             <div className="px-3 py-1 rounded-lg font-bold bg-orange-500/10 text-orange-500 flex items-center gap-1.5">
                               <LifeBuoy size={14} />
-                              {t.recoveryMode || 'Modo Recuperação'} 
+                              {t.recoveryMode}
                               {item.reviewState.recoveryAttempts !== undefined && ` (${item.reviewState.recoveryAttempts + 1}ª tentativa)`}
                             </div>
                           )}
