@@ -75,7 +75,7 @@ function simulateReviewScheduling(
     const newCorrectTotal = currentReviewState.correctTotal + correct;
     const newIncorrectTotal = currentReviewState.incorrectTotal + incorrect;
     const cumulativeTotal = newCorrectTotal + newIncorrectTotal;
-    const cumulativeAccuracy = cumulativeTotal > 0 ? (newCorrectTotal / cumulativeTotal) : 1.0;
+    const cumulativeAccuracy = cumulativeTotal > 0 ? (newCorrectTotal / cumulativeTotal) : 0;
     
     // Check if accuracy < 40%, reset reviewCount to 1
     let newReviewCount;
@@ -227,10 +227,9 @@ ${result.sessions.map(formatSessionReport).join('\n')}
   
   if (bugs.length > 0) {
     report += '\n\n⚠️  OBSERVAÇÕES:\n' + bugs.join('\n');
-    report += '\n\n📝 NOTA: O "bug" do intervalo não aumentar entre sessão 6 e 7 na verdade é';
-    report += '\n   um comportamento CORRETO. O multiplicador de dificuldade (0.69) aplicado';
-    report += '\n   ao intervalo base (2 dias) resulta em 1.38 dias, que arredonda para 1 dia.';
-    report += '\n   Isso mantém revisões frequentes enquanto a acurácia está baixa (40%).';
+    report += '\n\n📝 NOTA: Comportamentos que parecem contraintuitivos podem ser intencionais.';
+    report += '\n   O multiplicador de dificuldade reduz intervalos quando a acurácia é baixa,';
+    report += '\n   garantindo revisões frequentes até que o estudante demonstre domínio do conteúdo.';
   } else {
     report += '\n\n✅ Nenhum bug detectado no sistema de revisões!';
   }
@@ -272,7 +271,7 @@ function runJoaoSimulation() {
 }
 
 // Execute if run directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'))) {
   runJoaoSimulation();
 }
 

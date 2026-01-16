@@ -4,8 +4,7 @@
  * This script creates a visual representation of João's study progression
  */
 
-import { runJoaoSimulation } from './test-joao-simulation';
-import { createTopicKey, getBaseInterval, getDifficultyMultiplier } from './utils';
+import { runJoaoSimulation, simulateReviewScheduling } from './test-joao-simulation';
 
 console.log('╔════════════════════════════════════════════════════════════════════╗');
 console.log('║                                                                    ║');
@@ -14,8 +13,25 @@ console.log('║                                                                
 console.log('╚════════════════════════════════════════════════════════════════════╝');
 console.log();
 
-// Run the main simulation
-const report = runJoaoSimulation();
+// Run the main simulation and get the result object
+const joaoSessions = [
+  { correct: 1, incorrect: 9 },
+  { correct: 2, incorrect: 8 },
+  { correct: 3, incorrect: 7 },
+  { correct: 4, incorrect: 6 },
+  { correct: 5, incorrect: 5 },
+  { correct: 6, incorrect: 4 },
+  { correct: 7, incorrect: 3 },
+  { correct: 8, incorrect: 2 },
+  { correct: 9, incorrect: 1 },
+  { correct: 10, incorrect: 0 },
+];
+
+const result = simulateReviewScheduling('Matemática', 'Função', joaoSessions, 600);
+
+// Run the main simulation for console output
+console.log('🚀 Iniciando simulação das sessões de estudo de João...\n');
+runJoaoSimulation();
 
 console.log('\n\n╔════════════════════════════════════════════════════════════════════╗');
 console.log('║               VISUALIZAÇÃO DA PROGRESSÃO                           ║');
@@ -23,7 +39,7 @@ console.log('╚═════════════════════�
 
 // Create ASCII chart for accuracy progression
 console.log('📈 GRÁFICO DE EVOLUÇÃO DA ACURÁCIA ACUMULADA:\n');
-const accuracies = [10, 15, 20, 25, 30, 35, 40, 45, 50, 55];
+const accuracies = result.sessions.map(s => s.cumulativeAccuracy);
 const maxWidth = 50;
 
 accuracies.forEach((acc, i) => {
@@ -36,7 +52,7 @@ accuracies.forEach((acc, i) => {
 });
 
 console.log('\n📊 GRÁFICO DE INTERVALO DE REVISÃO:\n');
-const intervals = [1, 1, 1, 1, 1, 1, 1, 2, 4, 7];
+const intervals = result.sessions.map(s => s.intervalDays);
 const maxInterval = Math.max(...intervals);
 
 intervals.forEach((interval, i) => {
