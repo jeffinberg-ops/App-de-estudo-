@@ -1,13 +1,13 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import { Calendar, Target, Clock, Zap, Star, Eye, EyeOff, Plus, Trash2, X } from 'lucide-react';
-import { ExamEvent } from '../types';
+import { ExamEvent, ThemePreset } from '../types';
 
 interface ExamsViewProps {
   examEvents: ExamEvent[];
   onAddExam: (name: string, date: string) => void;
   onRemoveExam: (id: string) => void;
-  theme: 'dark' | 'light';
+  theme: ThemePreset;
   t: any;
 }
 

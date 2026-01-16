@@ -724,7 +724,7 @@ const App: React.FC = () => {
             examEvents={appData.examEvents || []} 
             onAddExam={(name, date) => setAppData(prev => ({ 
               ...prev, 
-              examEvents: [...(prev.examEvents || []), { id: `exam_${Date.now()}`, name, date }] 
+              examEvents: [...(prev.examEvents || []), { id: `exam_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`, name, date }] 
             }))} 
             onRemoveExam={(id) => setAppData(prev => ({ 
               ...prev, 
