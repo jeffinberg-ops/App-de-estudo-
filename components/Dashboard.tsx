@@ -56,10 +56,10 @@ const Dashboard: React.FC<DashboardProps> = ({ logs, subjects, questions = {}, u
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+            <div className="p-3 theme-logo-bg rounded-2xl text-white shadow-lg transition-all duration-500">
               <Layout size={24} />
             </div>
-            <h1 className={`text-3xl font-black tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+            <h1 className={`text-3xl font-black tracking-tight theme-text-primary transition-all duration-500`}>
               {t.welcome}, {username.trim().replace(/\.+$/, '')}
             </h1>
           </div>
@@ -88,9 +88,9 @@ const Dashboard: React.FC<DashboardProps> = ({ logs, subjects, questions = {}, u
           isLight ? 'bg-white border-zinc-200 shadow-zinc-300/20' : 'glass-panel bg-gradient-to-br from-indigo-600/5 to-transparent'
         }`}>
           <span className={`${isLight ? 'text-zinc-500' : 'text-zinc-400'} text-xs font-black mb-2 uppercase tracking-[0.2em]`}>{t.studiedToday}</span>
-          <div className={`text-5xl font-black font-mono ${isLight ? 'text-indigo-600' : 'text-white'}`}>{formatTime(totalSecToday)}</div>
-          <div className={`mt-4 px-4 py-1 rounded-full text-[10px] font-black border uppercase ${
-            isLight ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-indigo-500/10 text-indigo-50 text-indigo-500 border-indigo-500/20'
+          <div className={`text-5xl font-black font-mono theme-text-primary transition-all duration-500`}>{formatTime(totalSecToday)}</div>
+          <div className={`mt-4 px-4 py-1 rounded-full text-[10px] font-black border uppercase transition-all duration-500 ${
+            isLight ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-indigo-500/10 text-indigo-50 theme-accent border-indigo-500/20'
           }`}>
             {logsToday.length} {t.totalSessions}
           </div>
@@ -100,7 +100,7 @@ const Dashboard: React.FC<DashboardProps> = ({ logs, subjects, questions = {}, u
           isLight ? 'bg-white border-zinc-200 shadow-zinc-300/20' : 'glass-panel bg-gradient-to-br from-emerald-600/5 to-transparent'
         }`}>
           <span className={`${isLight ? 'text-zinc-500' : 'text-zinc-400'} text-xs font-black mb-2 uppercase tracking-[0.2em]`}>{t.globalPerformance}</span>
-          <div className={`text-5xl font-black font-mono ${isLight ? 'text-emerald-600' : 'text-white'}`}>{questionSummary.rate.toFixed(0)}%</div>
+          <div className={`text-5xl font-black font-mono theme-text-primary transition-all duration-500`}>{questionSummary.rate.toFixed(0)}%</div>
           <div className={`mt-4 px-4 py-1 rounded-full text-[10px] font-black border uppercase ${
             isLight ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
           }`}>
@@ -111,8 +111,8 @@ const Dashboard: React.FC<DashboardProps> = ({ logs, subjects, questions = {}, u
         <div className={`p-8 rounded-[2.5rem] shadow-2xl transition-all duration-500 lg:col-span-1 md:col-span-2 border ${
           isLight ? 'bg-white border-zinc-200 shadow-zinc-300/20' : 'glass-panel'
         }`}>
-          <h3 className={`font-black text-xl mb-6 flex items-center gap-2 uppercase tracking-tighter ${isLight ? 'text-zinc-900' : 'text-white'}`}>
-            <Clock className="text-indigo-600" size={20} /> {t.recentSubjects}
+          <h3 className={`font-black text-xl mb-6 flex items-center gap-2 uppercase tracking-tighter theme-text-primary transition-all duration-500`}>
+            <Clock className="theme-icon transition-all duration-500" size={20} /> {t.recentSubjects}
           </h3>
           <div className="space-y-3">
             {recentSubjects.length > 0 ? recentSubjects.map(log => (
@@ -134,8 +134,8 @@ const Dashboard: React.FC<DashboardProps> = ({ logs, subjects, questions = {}, u
       <div className={`p-8 rounded-[3rem] shadow-2xl transition-all duration-500 border ${
         isLight ? 'bg-white border-zinc-300 shadow-zinc-300/20' : 'glass-panel'
       }`}>
-        <h3 className={`font-black text-xl mb-6 flex items-center gap-2 uppercase tracking-tighter ${isLight ? 'text-zinc-900' : 'text-white'}`}>
-          <Activity className="text-indigo-600" size={20} /> {t.recentSessions}
+        <h3 className={`font-black text-xl mb-6 flex items-center gap-2 uppercase tracking-tighter theme-text-primary transition-all duration-500`}>
+          <Activity className="theme-icon transition-all duration-500" size={20} /> {t.recentSessions}
         </h3>
         <div className="overflow-x-auto">
           <table className="w-full text-left">

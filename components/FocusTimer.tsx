@@ -118,7 +118,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
             <option value="" className="bg-[#18181b]">-- Escolha a Matéria --</option>
             {subjects.map(s => <option key={s} value={s} className="bg-[#18181b]">{s}</option>)}
           </select>
-          <div className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors ${isLight ? 'text-zinc-400' : 'text-zinc-500 group-hover:text-indigo-400'}`}>
+          <div className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors theme-icon`}>
             <ListFilter size={20} />
           </div>
         </div>
@@ -139,7 +139,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
               <option value="" className="bg-[#18181b]">{t.noTopicLabel || 'Geral / Sem Assunto'}</option>
               {subjectTopics.map(t => <option key={t} value={t} className="bg-[#18181b]">{t}</option>)}
             </select>
-            <div className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors ${isLight ? 'text-zinc-400' : 'text-zinc-500 group-hover:text-indigo-400'}`}>
+            <div className={`absolute left-5 top-1/2 -translate-y-1/2 transition-colors theme-icon`}>
               <BookOpen size={20} />
             </div>
           </div>
@@ -150,7 +150,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
         isLight ? 'bg-white border-zinc-300 shadow-zinc-400/20' : 'glass-panel bg-[#0c0c0e]/90'
       }`}>
         <div 
-          className={`absolute inset-x-0 bottom-0 transition-all duration-1000 ${isBreak ? 'bg-emerald-600/5' : 'bg-indigo-600/5'}`}
+          className={`absolute inset-x-0 bottom-0 transition-all duration-1000 ${isBreak ? 'bg-emerald-600/5' : 'theme-accent opacity-10'}`}
           style={{ height: `${isPomo ? (1 - pomoTimeLeft/ (isBreak ? breakTimeTotal : workTime)) * 100 : 0}%` }}
         />
         
@@ -162,7 +162,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
               onClick={() => setMode('pomodoro')}
               className={`px-8 py-2.5 rounded-full text-sm font-black transition-all ${
                 mode === 'pomodoro' 
-                  ? 'bg-indigo-600 text-white shadow-lg'
+                  ? 'theme-logo-bg text-white shadow-lg'
                   : isLight ? 'text-zinc-500 hover:text-zinc-700' : 'text-zinc-500 hover:text-zinc-300'
               } ${isBreak ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
@@ -174,7 +174,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
               onClick={() => setMode('stopwatch')}
               className={`px-8 py-2.5 rounded-full text-sm font-black transition-all ${
                 mode === 'stopwatch' 
-                  ? 'bg-indigo-600 text-white shadow-lg' 
+                  ? 'theme-logo-bg text-white shadow-lg' 
                   : isLight ? 'text-zinc-500 hover:text-zinc-700' : 'text-zinc-500 hover:text-zinc-300'
               } ${isBreak ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
@@ -190,7 +190,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                  <span className={`text-[10px] font-black uppercase tracking-[0.2em] ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`}>{t.workLabel}</span>
                  <div className="flex flex-col gap-2">
                     <div className={`flex items-center gap-3 px-4 py-2.5 rounded-2xl border ${isLight ? 'bg-zinc-50 border-zinc-300' : 'bg-zinc-950/60 border-zinc-800'}`}>
-                      <Clock size={16} className="text-indigo-500" />
+                      <Clock size={16} className="theme-icon transition-all duration-500" />
                       <input 
                         type="number"
                         disabled={isTimerActive}
@@ -207,7 +207,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                           onClick={() => setPomoPreset(p)}
                           className={`px-2 py-0.5 rounded-lg text-[10px] font-black border transition-all ${
                             pomoPreset === p 
-                            ? 'bg-indigo-600 border-indigo-500 text-white' 
+                            ? 'theme-logo-bg border-transparent text-white' 
                             : 'bg-zinc-800/50 border-zinc-700 text-zinc-500 hover:text-zinc-300'
                           } ${isTimerActive ? 'opacity-50 cursor-not-allowed' : ''}`}
                         >
@@ -252,11 +252,11 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
           )}
 
           <div className="flex flex-col items-center w-full">
-            <span className={`text-xs uppercase tracking-[0.4em] font-black mb-6 ${isBreak ? 'text-emerald-500' : 'text-indigo-500'}`}>
+            <span className={`text-xs uppercase tracking-[0.4em] font-black mb-6 transition-all duration-500 ${isBreak ? 'text-emerald-500' : 'theme-accent'}`}>
               {isBreak ? (t.pomoBreak.toUpperCase()) : (t.pomoWork.toUpperCase())}
             </span>
             <h2 className={`${timerFontSizeClass} font-mono font-black mb-12 tracking-tight transition-all duration-500 ${
-              isBreak ? 'text-emerald-500' : (isLight ? 'text-zinc-900' : 'text-white')
+              isBreak ? 'text-emerald-500' : 'theme-text-primary'
             }`}>
               {formatTime(currentTime)}
             </h2>
@@ -295,7 +295,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
                   className={`w-40 md:w-48 h-16 rounded-2xl font-black text-base md:text-lg transition-all text-white shadow-2xl active:scale-95 uppercase tracking-widest ${
                     isBreak 
                       ? 'bg-emerald-600 hover:bg-emerald-500 shadow-emerald-600/30' 
-                      : 'bg-indigo-600 hover:bg-indigo-500 shadow-indigo-600/30'
+                      : 'theme-logo-bg hover:opacity-90 shadow-lg'
                   }`}
                 >
                   {isTimerActive ? t.timerPause : t.timerStart}
@@ -317,7 +317,7 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
             <div className={`pt-8 border-t w-full ${isLight ? 'border-zinc-200' : 'border-zinc-800/50'}`}>
                <div className="flex flex-col items-center gap-4">
                   <div className="flex items-center gap-2">
-                    <Target size={16} className="text-indigo-600" />
+                    <Target size={16} className="theme-icon transition-all duration-500" />
                     <span className={`text-[10px] font-black uppercase tracking-widest ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`}>{t.resolvedVolume}</span>
                   </div>
                   <div className="flex items-center gap-4">
