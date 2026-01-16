@@ -101,9 +101,11 @@ export const getBaseInterval = (reviewCount: number): number => {
  * Calculates the difficulty multiplier based on accuracy (0-1 range).
  */
 export const getDifficultyMultiplier = (accuracy: number): number => {
+  // Clamp accuracy to valid range [0, 1]
+  const validAccuracy = Math.max(0, Math.min(1, accuracy));
   // New formula that rewards high performance (>80%) with multiplier > 1.0
   // Median performance results in multiplier <= 1.0
-  const mult = 0.6 + Math.pow(accuracy, 3) * 1.4;
+  const mult = 0.6 + Math.pow(validAccuracy, 3) * 1.4;
   return mult;
 };
 
