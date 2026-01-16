@@ -2,7 +2,7 @@ import { doc, getDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { db } from './firebase';
 import { AppState } from '../types';
 
-const COLLECTION_NAME = 'userData';
+const COLLECTION_NAME = 'users';
 
 export const saveUserData = async (userId: string, data: AppState): Promise<void> => {
   if (!db) {
