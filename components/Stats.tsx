@@ -164,9 +164,9 @@ const Stats: React.FC<StatsProps> = ({ subjects, logs, subjectColors, reviewStat
     });
     
     return [
-      { name: t.newTopics || 'Novos', value: newTopics.length, color: '#f59e0b' },
-      { name: t.learningTopics || 'Em Aprendizagem', value: learningTopics.length, color: '#3b82f6' },
-      { name: t.matureTopics || 'Maduros', value: matureTopics.length, color: '#10b981' }
+      { name: t.newTopics || 'New', value: newTopics.length, color: '#f59e0b' },
+      { name: t.learningTopics || 'Learning', value: learningTopics.length, color: '#3b82f6' },
+      { name: t.matureTopics || 'Mature', value: matureTopics.length, color: '#10b981' }
     ];
   }, [reviewStates, t]);
 
@@ -174,19 +174,19 @@ const Stats: React.FC<StatsProps> = ({ subjects, logs, subjectColors, reviewStat
   const intervalDistributionData = useMemo(() => {
     const today = toLocalISO(new Date());
     const intervals: Record<string, number> = {
-      [t.interval_0_1 || '0-1 dias']: 0,
-      [t.interval_2_7 || '2-7 dias']: 0,
-      [t.interval_8_30 || '8-30 dias']: 0,
-      [t.interval_31_90 || '31-90 dias']: 0,
-      [t.interval_90_plus || '90+ dias']: 0
+      [t.interval_0_1 || '0-1 days']: 0,
+      [t.interval_2_7 || '2-7 days']: 0,
+      [t.interval_8_30 || '8-30 days']: 0,
+      [t.interval_31_90 || '31-90 days']: 0,
+      [t.interval_90_plus || '90+ days']: 0
     };
     
     const keys = {
-      interval_0_1: t.interval_0_1 || '0-1 dias',
-      interval_2_7: t.interval_2_7 || '2-7 dias',
-      interval_8_30: t.interval_8_30 || '8-30 dias',
-      interval_31_90: t.interval_31_90 || '31-90 dias',
-      interval_90_plus: t.interval_90_plus || '90+ dias'
+      interval_0_1: t.interval_0_1 || '0-1 days',
+      interval_2_7: t.interval_2_7 || '2-7 days',
+      interval_8_30: t.interval_8_30 || '8-30 days',
+      interval_31_90: t.interval_31_90 || '31-90 days',
+      interval_90_plus: t.interval_90_plus || '90+ days'
     };
     
     Object.values(reviewStates).forEach(state => {
@@ -345,7 +345,7 @@ const Stats: React.FC<StatsProps> = ({ subjects, logs, subjectColors, reviewStat
         <>
           <div className="mt-12">
             <h2 className={`text-2xl font-black mb-6 ${isLight ? 'text-zinc-900' : 'text-white'}`}>
-              {t.reviewTitle || 'Estatísticas de Revisão'}
+              {t.reviewTitle || 'Review Statistics'}
             </h2>
           </div>
 

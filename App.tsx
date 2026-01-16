@@ -684,7 +684,7 @@ const App: React.FC = () => {
     });
     
     // Show feedback
-    setToastMessage(t.postponeSuccess || 'Revisão adiada para +1 dia');
+    setToastMessage(t.postponeSuccess || 'Review postponed for +1 day');
     setTimeout(() => setToastMessage(null), 3000);
   };
 

@@ -385,7 +385,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdate, theme, appState
             <div className={`p-2.5 rounded-xl ${isLight ? 'bg-emerald-50 text-emerald-600' : 'bg-emerald-500/10 text-emerald-400'}`}>
               <Calendar size={18} />
             </div>
-            <h2 className={`text-lg font-bold ${isLight ? 'text-zinc-800' : 'text-white'}`}>{t.reviewTitle || 'Configurações de Revisão'}</h2>
+            <h2 className={`text-lg font-bold ${isLight ? 'text-zinc-800' : 'text-white'}`}>{t.reviewTitle || 'Review Settings'}</h2>
           </div>
           <div className="space-y-6">
             {/* Review Session Limit */}
