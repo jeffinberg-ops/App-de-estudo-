@@ -292,6 +292,71 @@ const App: React.FC = () => {
     breakEndSoundRef.current = new Audio(BREAK_END_SOUND_URL);
   }, []);
 
+  /**
+   * Updates the review state for a topic based on session data.
+   * This function is called whenever a study session ends (manual save or automatic completion).
+   */
+  const updateReviewStateForTopic = useCallback((
+    subject: string,
+    topic: string,
+    correct: number,
+    incorrect: number
+  ) => {
+    if (!topic || !topic.trim()) {
+      return;
+    }
+    
+    const topicKey = createTopicKey(subject, topic);
+    
+    setAppData(prev => {
+      const currentReviewState = prev.reviewStates?.[topicKey] || {
+        reviewCount: 0,
+        correctTotal: 0,
+        incorrectTotal: 0,
+        dueAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      
+      // Update totals if questions were answered
+      const newCorrectTotal = currentReviewState.correctTotal + correct;
+      const newIncorrectTotal = currentReviewState.incorrectTotal + incorrect;
+      
+      // Calculate accuracy
+      const totalQuestions = newCorrectTotal + newIncorrectTotal;
+      const accuracy = totalQuestions > 0 ? newCorrectTotal / totalQuestions : 1.0;
+      
+      // Reset logic: if accuracy < 40%, reset reviewCount to 1
+      let newReviewCount;
+      if (accuracy < 0.4) {
+        newReviewCount = 1;
+      } else {
+        newReviewCount = currentReviewState.reviewCount + 1;
+      }
+      
+      // Calculate next review date
+      const baseInterval = getBaseInterval(newReviewCount);
+      const difficultyMult = getDifficultyMultiplier(accuracy);
+      const intervalDays = Math.max(1, Math.round(baseInterval * difficultyMult));
+      
+      const nextReviewDate = new Date();
+      nextReviewDate.setDate(nextReviewDate.getDate() + intervalDays);
+      
+      return {
+        ...prev,
+        reviewStates: {
+          ...prev.reviewStates,
+          [topicKey]: {
+            reviewCount: newReviewCount,
+            correctTotal: newCorrectTotal,
+            incorrectTotal: newIncorrectTotal,
+            dueAt: nextReviewDate.toISOString(),
+            updatedAt: new Date().toISOString()
+          }
+        }
+      };
+    });
+  }, [setAppData]);
+
   useEffect(() => {
     if (timerSession.pomoActive || timerSession.stopwatchActive) {
       const timerInterval = window.setInterval(() => {
@@ -410,71 +475,6 @@ const App: React.FC = () => {
       ...prev,
       logs: [...prev.logs, { ...log, id: Date.now() }]
     }));
-  }, [setAppData]);
-
-  /**
-   * Updates the review state for a topic based on session data.
-   * This function is called whenever a study session ends (manual save or automatic completion).
-   */
-  const updateReviewStateForTopic = useCallback((
-    subject: string,
-    topic: string,
-    correct: number,
-    incorrect: number
-  ) => {
-    if (!topic || !topic.trim()) {
-      return;
-    }
-    
-    const topicKey = createTopicKey(subject, topic);
-    
-    setAppData(prev => {
-      const currentReviewState = prev.reviewStates?.[topicKey] || {
-        reviewCount: 0,
-        correctTotal: 0,
-        incorrectTotal: 0,
-        dueAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      };
-      
-      // Update totals if questions were answered
-      const newCorrectTotal = currentReviewState.correctTotal + correct;
-      const newIncorrectTotal = currentReviewState.incorrectTotal + incorrect;
-      
-      // Calculate accuracy
-      const totalQuestions = newCorrectTotal + newIncorrectTotal;
-      const accuracy = totalQuestions > 0 ? newCorrectTotal / totalQuestions : 1.0;
-      
-      // Reset logic: if accuracy < 40%, reset reviewCount to 1
-      let newReviewCount;
-      if (accuracy < 0.4) {
-        newReviewCount = 1;
-      } else {
-        newReviewCount = currentReviewState.reviewCount + 1;
-      }
-      
-      // Calculate next review date
-      const baseInterval = getBaseInterval(newReviewCount);
-      const difficultyMult = getDifficultyMultiplier(accuracy);
-      const intervalDays = Math.max(1, Math.round(baseInterval * difficultyMult));
-      
-      const nextReviewDate = new Date();
-      nextReviewDate.setDate(nextReviewDate.getDate() + intervalDays);
-      
-      return {
-        ...prev,
-        reviewStates: {
-          ...prev.reviewStates,
-          [topicKey]: {
-            reviewCount: newReviewCount,
-            correctTotal: newCorrectTotal,
-            incorrectTotal: newIncorrectTotal,
-            dueAt: nextReviewDate.toISOString(),
-            updatedAt: new Date().toISOString()
-          }
-        }
-      };
-    });
   }, [setAppData]);
 
   const saveTimerSession = useCallback(() => {
