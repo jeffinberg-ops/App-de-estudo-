@@ -75,6 +75,7 @@ function simulateReviewScheduling(
     const newCorrectTotal = currentReviewState.correctTotal + correct;
     const newIncorrectTotal = currentReviewState.incorrectTotal + incorrect;
     const cumulativeTotal = newCorrectTotal + newIncorrectTotal;
+    // Edge case: when no questions have been answered yet (cumulativeTotal = 0), default to 0% accuracy
     const cumulativeAccuracy = cumulativeTotal > 0 ? (newCorrectTotal / cumulativeTotal) : 0;
     
     // Check if accuracy < 40%, reset reviewCount to 1
@@ -270,8 +271,9 @@ function runJoaoSimulation() {
   return report;
 }
 
-// Execute if run directly
-if (import.meta.url.endsWith(process.argv[1].replace(/\\/g, '/'))) {
+// Execute if run directly (works for most common cases)
+// Note: This check may not work in all environments, but is sufficient for test scripts
+if (process.argv[1] && import.meta.url.includes(process.argv[1].replace(/\\/g, '/'))) {
   runJoaoSimulation();
 }
 
