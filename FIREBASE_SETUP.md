@@ -49,6 +49,14 @@ service cloud.firestore {
 }
 ```
 
+**IMPORTANTE sobre as regras de segurança:**
+
+Estas regras implementam um modelo de segurança baseado em acesso a documento individual:
+- ✅ **Permitido**: Cada usuário pode acessar APENAS seu próprio documento em `/users/{userId}` onde `userId` corresponde ao seu UID de autenticação
+- ❌ **Bloqueado**: Consultas à coleção completa, listagem de documentos de outros usuários, ou qualquer operação que não seja no documento específico do usuário autenticado
+
+O código da aplicação foi desenvolvido para seguir este modelo de segurança, usando apenas referências diretas a documentos (`doc()`). NÃO modifique o código para usar operações de coleção (`collection()`, `getDocs()`, `query()`) pois elas serão bloqueadas por estas regras.
+
 ## Passo 4: Obter Credenciais do Firebase
 
 1. No menu lateral, clique no ícone de engrenagem ⚙️ e selecione "Configurações do projeto"
@@ -141,6 +149,11 @@ Se as credenciais do Firebase não estiverem configuradas:
 - Verifique as regras de segurança no Firestore
 - Confirme que o usuário está autenticado
 - Verifique o console do navegador para erros
+- **Erro de permissão específico (permission-denied)**:
+  - Certifique-se de que as regras de segurança estão configuradas corretamente (veja seção "Regras de Segurança Recomendadas")
+  - Verifique se o usuário está autenticado (check no console: `auth.currentUser`)
+  - Confirme que o código está usando apenas `doc()` para acesso direto ao documento do usuário, não operações de coleção
+  - O userId usado nas funções deve corresponder exatamente ao UID do usuário autenticado
 
 ## Segurança
 
