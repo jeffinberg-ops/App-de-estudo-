@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { User, Moon, Sun, Monitor, Shield, Database, Download, Upload, Trophy, Clock, CheckSquare, Zap, Languages, Trash2, Settings as SettingsIcon, Flame, Terminal, Play, Key, X, Check, Sparkles, Crown, Target, Lock, Calendar } from 'lucide-react';
+import { User, Moon, Sun, Monitor, Shield, Database, Download, Upload, Trophy, Clock, CheckSquare, Zap, Languages, Trash2, Settings as SettingsIcon, Flame, Terminal, Play, Key, X, Check, Sparkles, Crown, Target, Lock, Calendar, LifeBuoy } from 'lucide-react';
 import { UserSettings, AppState, QuestionData, Language } from '../types';
 import { formatTimeShort, calculateStreak, isEliteThemeUnlocked, isMestreThemeUnlocked } from '../utils';
 
@@ -14,12 +14,13 @@ interface SettingsProps {
   onReset: () => void;
   onUnlockAll?: () => void;
   onGenerateTestData?: () => void;
+  onGenerateAdaptiveRecoveryTestData?: () => void;
   t: any;
 }
 
 const TEST_MODE_PASSWORD = '705011FocusL';
 
-const Settings: React.FC<SettingsProps> = ({ settings, onUpdate, theme, appState, onExport, onImport, onReset, onUnlockAll, onGenerateTestData, t }) => {
+const Settings: React.FC<SettingsProps> = ({ settings, onUpdate, theme, appState, onExport, onImport, onReset, onUnlockAll, onGenerateTestData, onGenerateAdaptiveRecoveryTestData, t }) => {
   const isLight = theme === 'light';
   const [showPasswordPrompt, setShowPasswordPrompt] = useState(false);
   const [passwordInput, setPasswordInput] = useState('');
@@ -503,7 +504,7 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdate, theme, appState
           )}
 
           {settings.isTestMode && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 animate-slide-down">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 animate-slide-down">
                <button 
                 onClick={onUnlockAll}
                 className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-amber-600 to-amber-500 hover:from-amber-500 hover:to-amber-400 text-white font-black rounded-2xl text-sm transition-all shadow-xl shadow-amber-600/20 active:scale-95"
@@ -515,6 +516,12 @@ const Settings: React.FC<SettingsProps> = ({ settings, onUpdate, theme, appState
                 className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-400 text-white font-black rounded-2xl text-sm transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
               >
                 <Play size={18} /> GERAR HISTÓRICO DE ESTUDO
+              </button>
+              <button 
+                onClick={onGenerateAdaptiveRecoveryTestData}
+                className="flex items-center justify-center gap-3 px-6 py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-white font-black rounded-2xl text-sm transition-all shadow-xl shadow-emerald-600/20 active:scale-95"
+              >
+                <LifeBuoy size={18} /> TESTAR RECUPERAÇÃO ADAPTATIVA
               </button>
             </div>
           )}

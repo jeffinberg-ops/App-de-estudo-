@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState } from 'react';
-import { Calendar, Clock, TrendingUp, BookOpen, Target, CalendarClock } from 'lucide-react';
+import { Calendar, Clock, TrendingUp, BookOpen, Target, CalendarClock, LifeBuoy } from 'lucide-react';
 import { ReviewState } from '../types';
 import { parseTopicKey, toLocalISO, daysBetween } from '../utils';
 
@@ -257,6 +257,15 @@ const ReviewView: React.FC<ReviewViewProps> = ({ reviewStates, theme = 'dark', t
                         </p>
                         
                         <div className="flex flex-wrap gap-3 text-xs">
+                          {/* Recovery Mode Indicator */}
+                          {item.reviewState.inRecoveryMode && (
+                            <div className="px-3 py-1 rounded-lg font-bold bg-orange-500/10 text-orange-500 flex items-center gap-1.5">
+                              <LifeBuoy size={14} />
+                              {t.recoveryMode}
+                              {item.reviewState.recoveryAttempts !== undefined && ` (${item.reviewState.recoveryAttempts + 1}ª tentativa)`}
+                            </div>
+                          )}
+                          
                           <div className={`px-3 py-1 rounded-lg font-bold ${
                             item.daysOverdue > 0
                               ? 'bg-red-500/10 text-red-500'

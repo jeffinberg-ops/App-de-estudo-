@@ -214,6 +214,79 @@ const App: React.FC = () => {
     alert("Histórico de teste gerado com sucesso! Verifique o painel e estatísticas.");
   }, [setAppData]);
 
+  const generateAdaptiveRecoveryTestData = useCallback(() => {
+    setAppData(prev => {
+      // Ensure we have Matemática subject
+      const subjects = prev.subjects.includes('Matemática') ? prev.subjects : [...prev.subjects, 'Matemática'];
+      const topics = prev.topics.Matemática ? prev.topics : { ...prev.topics, Matemática: [] };
+      
+      // Add test topics if they don't exist
+      const testTopics = ['Função Spike+Recuperação', 'Função Spike+Piora', 'Função Recuperação Tardia'];
+      testTopics.forEach(topic => {
+        if (!topics.Matemática.includes(topic)) {
+          topics.Matemática.push(topic);
+        }
+      });
+
+      const newReviewStates = { ...prev.reviewStates };
+      
+      // Scenario 1: Spike with successful recovery
+      const topic1Key = createTopicKey('Matemática', testTopics[0]);
+      newReviewStates[topic1Key] = {
+        reviewCount: 11,
+        correctTotal: 100,
+        incorrectTotal: 20,
+        dueAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        inRecoveryMode: false,
+        lastSessionAccuracy: 0.8
+      };
+
+      // Scenario 2: Spike with worsening (currently in recovery mode) - Due TODAY
+      const topic2Key = createTopicKey('Matemática', testTopics[1]);
+      newReviewStates[topic2Key] = {
+        reviewCount: 10,
+        correctTotal: 90,
+        incorrectTotal: 50,
+        dueAt: new Date().toISOString(), // Due today to show in review list
+        updatedAt: new Date().toISOString(),
+        inRecoveryMode: true,
+        previousInterval: 180,
+        recoveryAttempts: 2,
+        lastSessionAccuracy: 0.2
+      };
+
+      // Scenario 3: Currently in recovery with marginal performance - Due TODAY
+      const topic3Key = createTopicKey('Matemática', testTopics[2]);
+      newReviewStates[topic3Key] = {
+        reviewCount: 10,
+        correctTotal: 96,
+        incorrectTotal: 24,
+        dueAt: new Date().toISOString(), // Due today to show in review list
+        updatedAt: new Date().toISOString(),
+        inRecoveryMode: true,
+        previousInterval: 169,
+        recoveryAttempts: 1,
+        lastSessionAccuracy: 0.5
+      };
+
+      return {
+        ...prev,
+        subjects,
+        topics: {
+          ...prev.topics,
+          Matemática: topics.Matemática
+        },
+        reviewStates: newReviewStates,
+        subjectColors: {
+          ...prev.subjectColors,
+          'Matemática': prev.subjectColors['Matemática'] || '#6366f1'
+        }
+      };
+    });
+    alert("✅ Dados de teste do Sistema de Recuperação Adaptativa gerados!\n\n🎯 3 tópicos criados em 'Matemática' (todos para HOJE):\n1. Função Spike+Recuperação ✅ (recuperado com sucesso)\n2. Função Spike+Piora 🔴 (em modo recuperação - tentativa 3)\n3. Função Recuperação Tardia 🟡 (em modo recuperação - tentativa 2)\n\n💡 Vá para a aba 'Revisar' para ver os indicadores de recuperação laranja!");
+  }, [setAppData]);
+
   useEffect(() => {
     if (isDataLoaded) {
       const timer = setTimeout(() => checkAchievements(), 1000);
@@ -917,7 +990,7 @@ const App: React.FC = () => {
           />}
           {activeTab === 'share' && <ShareView state={appData} theme={appData.settings.theme} t={t} />}
           {activeTab === 'ajuda' && <HelpView theme={appData.settings.theme} t={t} />}
-          {activeTab === 'settings' && <Settings settings={appData.settings} onUpdate={(s) => setAppData(prev => ({ ...prev, settings: { ...prev.settings, ...s } }))} theme={appData.settings.theme} appState={appData} onExport={handleExport} onImport={handleImport} onReset={() => setAppData(() => INITIAL_STATE)} onUnlockAll={unlockAllAchievements} onGenerateTestData={generateTestData} t={t} />}
+          {activeTab === 'settings' && <Settings settings={appData.settings} onUpdate={(s) => setAppData(prev => ({ ...prev, settings: { ...prev.settings, ...s } }))} theme={appData.settings.theme} appState={appData} onExport={handleExport} onImport={handleImport} onReset={() => setAppData(() => INITIAL_STATE)} onUnlockAll={unlockAllAchievements} onGenerateTestData={generateTestData} onGenerateAdaptiveRecoveryTestData={generateAdaptiveRecoveryTestData} t={t} />}
         </div>
       </main>
       
