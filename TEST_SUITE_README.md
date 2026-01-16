@@ -18,13 +18,27 @@ Visual test runner that:
 - Provides timeline visualization
 - Highlights key milestones in João's learning journey
 
-### 3. `JOAO_EVOLUTION_REPORT.md`
+### 3. `test-joao-future-reviews.ts` ⭐ NEW
+Extended simulation that:
+- Tests what happens AFTER João masters the content
+- Simulates 20 sessions total (10 learning + 10 future reviews)
+- Shows interval growth with consistent high performance (90-100%)
+- **DISCOVERED A BUG**: Intervals exceed 180-day cap when accuracy > 70%
+
+### 4. `JOAO_EVOLUTION_REPORT.md`
 Comprehensive markdown report containing:
 - Detailed session-by-session breakdown
 - Full metrics and statistics
 - Analysis of review scheduling behavior
-- Bug analysis (none found!)
+- Bug analysis (none found in initial 10 sessions)
 - Conclusions and recommendations
+
+### 5. `RESUMO_REVISOES_FUTURAS.md` ⭐ NEW
+Portuguese summary of future reviews test containing:
+- Analysis of sessions 11-20 (after mastery)
+- Interval growth progression (12 → 219 days)
+- **BUG REPORT**: Intervals exceeding 180-day limit
+- Recommendations for fixing the issue
 
 ## 🚀 Running the Tests
 
@@ -36,6 +50,18 @@ npx tsx test-joao-visual.ts
 ### Run just the core simulation:
 ```bash
 npx tsx test-joao-simulation.ts
+```
+
+### Run the future reviews test (NEW):
+```bash
+npx tsx test-joao-future-reviews.ts
+```
+
+Or use npm scripts:
+```bash
+npm run test:joao         # Visual test
+npm run test:joao-simple  # Simple test
+npm run test:joao-future  # Future reviews test (20 sessions)
 ```
 
 ## 📊 Test Scenario
@@ -53,7 +79,29 @@ João studies "Matemática - Função" on the Cronômetro (stopwatch):
 | **Final accuracy** | 55% (55 correct / 45 incorrect) |
 | **Review count** | 5 |
 | **Next review** | 7 days after final session |
-| **Bugs found** | 0 ✅ |
+| **Bugs found (sessions 1-10)** | 0 ✅ |
+
+## ⚠️ Bug Found in Extended Testing (Sessions 11-20)
+
+When testing future reviews with consistently high performance (90-100% accuracy), a bug was discovered:
+
+**Issue**: Intervals can exceed the 180-day cap
+- Sessions 16-20 show intervals of 194-219 days
+- This happens when cumulative accuracy > 70% (multiplier > 1.0)
+- The 180-day cap is applied to base interval, but not to final interval after multiplier
+
+**Location**: `App.tsx` line 339 and simulation code
+**Fix needed**: Apply 180-day cap AFTER multiplier calculation
+
+```typescript
+// Current (BUG):
+const intervalDays = Math.max(1, Math.round(baseInterval * difficultyMult));
+
+// Should be:
+const intervalDays = Math.max(1, Math.min(180, Math.round(baseInterval * difficultyMult)));
+```
+
+See `RESUMO_REVISOES_FUTURAS.md` for detailed analysis.
 
 ## 🔍 Key Findings
 

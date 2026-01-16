@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "test:joao": "npx tsx test-joao-visual.ts",
-    "test:joao-simple": "npx tsx test-joao-simulation.ts"
+    "test:joao-simple": "npx tsx test-joao-simulation.ts",
+    "test:joao-future": "npx tsx test-joao-future-reviews.ts"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",
