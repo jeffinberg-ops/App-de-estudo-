@@ -1,29 +1,56 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Calendar, Target, Clock, Zap, Star, Eye, EyeOff } from 'lucide-react';
+import { Calendar, Target, Clock, Zap, Star, Eye, EyeOff, Plus, Trash2, X } from 'lucide-react';
+import { ExamEvent } from '../types';
 
 interface ExamsViewProps {
-  examDate?: string;
-  examName?: string;
-  onUpdateExam: (name: string, date: string) => void;
+  examEvents: ExamEvent[];
+  onAddExam: (name: string, date: string) => void;
+  onRemoveExam: (id: string) => void;
   theme: 'dark' | 'light';
   t: any;
 }
 
-const ExamsView: React.FC<ExamsViewProps> = ({ examDate, examName, onUpdateExam, theme, t }) => {
+const ExamsView: React.FC<ExamsViewProps> = ({ examEvents, onAddExam, onRemoveExam, theme, t }) => {
   const isLight = theme === 'light';
+  const [newExamName, setNewExamName] = useState('');
+  const [newExamDate, setNewExamDate] = useState('');
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
   const [showWarning, setShowWarning] = useState(false);
+  const [nextExam, setNextExam] = useState<ExamEvent | null>(null);
 
   const quote = useMemo(() => {
     const quotes = t.motivationQuotes || [];
     return quotes[Math.floor(Math.random() * quotes.length)];
   }, [t.motivationQuotes]);
 
+  // Find next exam (earliest upcoming or most recent past exam)
   useEffect(() => {
-    if (!examDate) return;
+    if (!examEvents || examEvents.length === 0) {
+      setNextExam(null);
+      return;
+    }
 
-    const targetDate = new Date(examDate);
+    const now = new Date().getTime();
+    const sorted = [...examEvents].sort((a, b) => {
+      const dateA = new Date(a.date).getTime();
+      const dateB = new Date(b.date).getTime();
+      return dateA - dateB;
+    });
+
+    // Find first future exam or use last exam if all are past
+    const upcomingExam = sorted.find(e => new Date(e.date).getTime() >= now);
+    setNextExam(upcomingExam || sorted[sorted.length - 1]);
+  }, [examEvents]);
+
+  // Update countdown timer for next exam
+  useEffect(() => {
+    if (!nextExam) {
+      setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
+      return;
+    }
+
+    const targetDate = new Date(nextExam.date);
     if (isNaN(targetDate.getTime())) {
       setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0, total: 0 });
       return;
@@ -47,7 +74,14 @@ const ExamsView: React.FC<ExamsViewProps> = ({ examDate, examName, onUpdateExam,
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [examDate]);
+  }, [nextExam]);
+
+  const handleAddExam = () => {
+    if (!newExamName.trim() || !newExamDate) return;
+    onAddExam(newExamName.trim(), newExamDate);
+    setNewExamName('');
+    setNewExamDate('');
+  };
 
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -55,19 +89,19 @@ const ExamsView: React.FC<ExamsViewProps> = ({ examDate, examName, onUpdateExam,
     if (yearMatch && yearMatch[1].length > 4) {
       return;
     }
-    onUpdateExam(examName || '', val);
+    setNewExamDate(val);
   };
 
-  const formattedChosenDate = useMemo(() => {
-    if (!examDate) return null;
-    const date = new Date(examDate);
+  const formattedNextExamDate = useMemo(() => {
+    if (!nextExam) return null;
+    const date = new Date(nextExam.date);
     if (isNaN(date.getTime())) return null;
     
     return new Intl.DateTimeFormat(t.locale || 'pt-BR', {
       dateStyle: 'long',
       timeStyle: 'short'
     }).format(date);
-  }, [examDate, t.locale]);
+  }, [nextExam, t.locale]);
 
   return (
     <div className="max-w-4xl mx-auto space-y-8 animate-fade-in pb-20">
@@ -81,16 +115,20 @@ const ExamsView: React.FC<ExamsViewProps> = ({ examDate, examName, onUpdateExam,
         <p className={`${isLight ? 'text-slate-500' : 'text-zinc-500'} font-medium`}>{t.examTabSubtitle}</p>
       </div>
 
+      {/* Add New Exam Form */}
       <div className={`p-8 rounded-[2.5rem] border shadow-2xl transition-all duration-500 ${
         isLight ? 'bg-white border-slate-100' : 'glass-panel'
       }`}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <h2 className={`text-lg font-black mb-6 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+          {t.addExamLabel || 'Adicionar Prova/Simulado'}
+        </h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
           <div className="space-y-2">
             <label className={`text-[10px] font-black uppercase tracking-widest ${isLight ? 'text-slate-400' : 'text-zinc-500'}`}>{t.examNameLabel}</label>
             <input 
               type="text"
-              value={examName || ''}
-              onChange={(e) => onUpdateExam(e.target.value, examDate || '')}
+              value={newExamName}
+              onChange={(e) => setNewExamName(e.target.value)}
               placeholder="Ex: ENEM 2025"
               className={`w-full px-4 py-3 rounded-xl border text-sm font-bold outline-none transition-all ${
                 isLight ? 'bg-slate-50 border-slate-200 text-slate-900 focus:border-rose-500' : 'bg-zinc-950/50 border-zinc-800 text-white focus:border-rose-500'
@@ -101,7 +139,7 @@ const ExamsView: React.FC<ExamsViewProps> = ({ examDate, examName, onUpdateExam,
             <label className={`text-[10px] font-black uppercase tracking-widest ${isLight ? 'text-slate-400' : 'text-zinc-500'}`}>{t.examDateLabel}</label>
             <input 
               type="datetime-local"
-              value={examDate || ''}
+              value={newExamDate}
               onChange={handleDateChange}
               max="9999-12-31T23:59"
               className={`w-full px-4 py-3 rounded-xl border text-sm font-bold outline-none transition-all ${
@@ -110,12 +148,120 @@ const ExamsView: React.FC<ExamsViewProps> = ({ examDate, examName, onUpdateExam,
             />
           </div>
         </div>
+        <button
+          onClick={handleAddExam}
+          disabled={!newExamName.trim() || !newExamDate}
+          className={`w-full py-3 rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 ${
+            !newExamName.trim() || !newExamDate
+              ? isLight ? 'bg-slate-100 text-slate-400 cursor-not-allowed' : 'bg-zinc-900 text-zinc-600 cursor-not-allowed'
+              : 'bg-rose-600 hover:bg-rose-500 text-white shadow-lg active:scale-95'
+          }`}
+        >
+          <Plus size={18} /> {t.addButton || 'Adicionar'}
+        </button>
+      </div>
 
-        {examDate && !isNaN(new Date(examDate).getTime()) ? (
+      {/* Exams List */}
+      {examEvents && examEvents.length > 0 && (
+        <div className={`p-8 rounded-[2.5rem] border shadow-2xl transition-all duration-500 ${
+          isLight ? 'bg-white border-slate-100' : 'glass-panel'
+        }`}>
+          <h2 className={`text-lg font-black mb-6 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+            {t.examListLabel || 'Provas Cadastradas'}
+          </h2>
+          <div className="space-y-3">
+            {examEvents
+              .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+              .map((exam) => {
+                const examDate = new Date(exam.date);
+                const isValid = !isNaN(examDate.getTime());
+                const isPast = isValid && examDate.getTime() < new Date().getTime();
+                const isNextExam = nextExam?.id === exam.id;
+                
+                return (
+                  <div 
+                    key={exam.id}
+                    className={`p-4 rounded-2xl border transition-all ${
+                      isNextExam
+                        ? isLight ? 'bg-rose-50 border-rose-300' : 'bg-rose-900/20 border-rose-500/50'
+                        : isPast
+                          ? isLight ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-zinc-900/40 border-zinc-800 opacity-60'
+                          : isLight ? 'bg-slate-50 border-slate-200' : 'bg-zinc-900/40 border-zinc-800'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <h3 className={`font-bold truncate ${
+                            isNextExam
+                              ? isLight ? 'text-rose-900' : 'text-rose-200'
+                              : isPast
+                                ? isLight ? 'text-slate-500' : 'text-zinc-500'
+                                : isLight ? 'text-slate-900' : 'text-white'
+                          }`}>
+                            {exam.name}
+                          </h3>
+                          {isNextExam && (
+                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${
+                              isLight ? 'bg-rose-600 text-white' : 'bg-rose-500 text-white'
+                            }`}>
+                              {t.nextExamBadge || 'Próxima'}
+                            </span>
+                          )}
+                          {isPast && (
+                            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-lg ${
+                              isLight ? 'bg-slate-300 text-slate-600' : 'bg-zinc-700 text-zinc-400'
+                            }`}>
+                              {t.pastExamBadge || 'Realizada'}
+                            </span>
+                          )}
+                        </div>
+                        {isValid && (
+                          <p className={`text-xs font-medium mt-1 ${
+                            isNextExam
+                              ? isLight ? 'text-rose-700' : 'text-rose-400'
+                              : isPast
+                                ? isLight ? 'text-slate-400' : 'text-zinc-600'
+                                : isLight ? 'text-slate-600' : 'text-zinc-400'
+                          }`}>
+                            {new Intl.DateTimeFormat(t.locale || 'pt-BR', {
+                              dateStyle: 'long',
+                              timeStyle: 'short'
+                            }).format(examDate)}
+                          </p>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => onRemoveExam(exam.id)}
+                        className={`p-2 rounded-xl transition-all ${
+                          isLight 
+                            ? 'hover:bg-rose-100 text-rose-500' 
+                            : 'hover:bg-rose-900/30 text-rose-400 hover:text-rose-300'
+                        }`}
+                        title={t.removeButton || 'Remover'}
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      )}
+
+      {/* Countdown for Next Exam */}
+      {nextExam && (
+        <div className={`p-8 rounded-[2.5rem] border shadow-2xl transition-all duration-500 ${
+          isLight ? 'bg-white border-slate-100' : 'glass-panel'
+        }`}>
           <div className="flex flex-col items-center">
-            {formattedChosenDate && (
+            <h2 className={`text-lg font-black mb-2 ${isLight ? 'text-slate-900' : 'text-white'}`}>
+              {nextExam.name}
+            </h2>
+            {formattedNextExamDate && (
               <div className={`mb-6 text-xs font-bold uppercase tracking-widest ${isLight ? 'text-slate-400' : 'text-zinc-500'}`}>
-                {formattedChosenDate}
+                {formattedNextExamDate}
               </div>
             )}
             
@@ -157,16 +303,24 @@ const ExamsView: React.FC<ExamsViewProps> = ({ examDate, examName, onUpdateExam,
               </p>
             </div>
           </div>
-        ) : (
+        </div>
+      )}
+
+      {/* Empty State */}
+      {(!examEvents || examEvents.length === 0) && (
+        <div className={`p-8 rounded-[2.5rem] border shadow-2xl transition-all duration-500 ${
+          isLight ? 'bg-white border-slate-100' : 'glass-panel'
+        }`}>
           <div className="py-16 text-center flex flex-col items-center gap-4 opacity-40">
             <Calendar size={48} className="text-zinc-600" />
             <p className="font-bold text-zinc-500 uppercase tracking-widest text-xs px-10">
-              {examDate && isNaN(new Date(examDate).getTime()) ? t.examInvalidDate : t.examPlaceholderHint}
+              {t.examPlaceholderHint || 'Nenhuma prova cadastrada. Adicione sua primeira prova acima!'}
             </p>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
+      {/* Warning Section */}
       <div className={`p-8 rounded-[2.5rem] border text-center space-y-6 relative overflow-hidden transition-all duration-700 max-w-xl mx-auto shadow-2xl ${
         isLight 
           ? 'bg-red-900 text-white border-red-800 shadow-red-900/10' 
