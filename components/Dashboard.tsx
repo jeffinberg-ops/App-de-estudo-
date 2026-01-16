@@ -151,7 +151,7 @@ const Dashboard: React.FC<DashboardProps> = ({ logs, subjects, questions = {}, u
                 <tr key={log.id} className="group">
                   <td className={`py-4 text-sm font-bold ${isLight ? 'text-zinc-800' : 'text-zinc-300'}`}>{log.subject}</td>
                   <td className={`py-4 text-xs font-bold ${isLight ? 'text-zinc-500' : 'text-zinc-500'}`}>{log.type}</td>
-                  <td className="py-4 text-sm text-right font-black font-mono text-indigo-600">{formatTimeShort(log.duration)}</td>
+                  <td className="py-4 text-sm text-right font-black font-mono theme-accent">{formatTimeShort(log.duration)}</td>
                 </tr>
               ))}
             </tbody>

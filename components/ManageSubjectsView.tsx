@@ -287,7 +287,7 @@ const ManageSubjectsView: React.FC<ManageSubjectsViewProps> = ({
                       />
                       <button 
                         onClick={() => handleAddTopic(s)}
-                        className="bg-indigo-600 px-4 rounded-xl text-white hover:bg-indigo-500 transition-all active:scale-95"
+                        className="theme-logo-bg px-4 rounded-xl text-white hover:opacity-90 transition-all active:scale-95"
                       >
                         <Plus size={18} strokeWidth={3} />
                       </button>
@@ -321,7 +321,7 @@ const ManageSubjectsView: React.FC<ManageSubjectsViewProps> = ({
           <button 
             onClick={handleAddSubject}
             disabled={!newSub.trim()}
-            className={`bg-indigo-600 w-14 h-14 rounded-[1.2rem] flex items-center justify-center hover:bg-indigo-500 transition-all text-white shadow-xl shadow-indigo-600/30 active:scale-90 shrink-0 ${!newSub.trim() ? 'opacity-40 cursor-not-allowed' : 'animate-shine'}`}
+            className={`theme-logo-bg w-14 h-14 rounded-[1.2rem] flex items-center justify-center hover:opacity-90 transition-all text-white shadow-xl active:scale-90 shrink-0 ${!newSub.trim() ? 'opacity-40 cursor-not-allowed' : 'animate-shine'}`}
           >
             <Plus size={28} strokeWidth={3} />
           </button>

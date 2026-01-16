@@ -155,19 +155,19 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, reviewStates = {}, ex
                 className={`
                   aspect-square border-r border-b p-2 md:p-3 relative group transition-all flex flex-col gap-1 text-left outline-none
                   ${isLight ? 'border-zinc-100' : 'border-zinc-800/50'}
-                  ${isToday ? (isLight ? 'bg-indigo-50' : 'bg-indigo-600/5') : (isLight ? 'hover:bg-zinc-50' : 'hover:bg-zinc-800/20')}
+                  ${isToday ? (isLight ? 'bg-indigo-50' : 'theme-accent opacity-5') : (isLight ? 'hover:bg-zinc-50' : 'hover:bg-zinc-800/20')}
                   ${hasActivity ? 'cursor-pointer' : 'cursor-default'}
                 `}
               >
                 <div className="flex justify-between items-start w-full">
                   <span className={`
                     text-xs font-bold w-6 h-6 flex items-center justify-center rounded-lg transition-transform group-hover:scale-110
-                    ${isToday ? 'bg-indigo-600 text-white shadow-lg' : isLight ? 'text-zinc-400' : 'text-zinc-400'}
+                    ${isToday ? 'theme-logo-bg text-white shadow-lg' : isLight ? 'text-zinc-400' : 'text-zinc-400'}
                   `}>
                     {date.getDate()}
                   </span>
                   {totalDuration > 0 && (
-                    <span className="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">
+                    <span className="text-[10px] font-mono font-bold theme-accent bg-opacity-10 px-1.5 py-0.5 rounded border border-opacity-20">
                       {formatTimeShort(totalDuration)}
                     </span>
                   )}
