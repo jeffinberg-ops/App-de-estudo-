@@ -455,20 +455,25 @@ const App: React.FC = () => {
             updatedAt: new Date().toISOString()
           };
           
-          // Increment review count
-          const newReviewCount = currentReviewState.reviewCount + 1;
-          
           // Update totals if questions were answered
           const newCorrectTotal = currentReviewState.correctTotal + correct;
           const newIncorrectTotal = currentReviewState.incorrectTotal + incorrect;
           
-          // Calculate error rate
+          // Calculate accuracy
           const totalQuestions = newCorrectTotal + newIncorrectTotal;
-          const errorRate = totalQuestions > 0 ? newIncorrectTotal / totalQuestions : 0;
+          const accuracy = totalQuestions > 0 ? newCorrectTotal / totalQuestions : 1.0;
+          
+          // Reset logic: if accuracy < 40%, reset reviewCount to 1
+          let newReviewCount;
+          if (accuracy < 0.4) {
+            newReviewCount = 1;
+          } else {
+            newReviewCount = currentReviewState.reviewCount + 1;
+          }
           
           // Calculate next review date
           const baseInterval = getBaseInterval(newReviewCount);
-          const difficultyMult = getDifficultyMultiplier(errorRate);
+          const difficultyMult = getDifficultyMultiplier(accuracy);
           const intervalDays = Math.max(1, Math.round(baseInterval * difficultyMult));
           
           const nextReviewDate = new Date();
