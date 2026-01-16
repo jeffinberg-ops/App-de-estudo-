@@ -1,5 +1,5 @@
 
-export type Tab = 'dashboard' | 'focus' | 'resumo' | 'weekly' | 'stats' | 'questoes' | 'calendario' | 'conquistas' | 'settings' | 'share' | 'ajuda' | 'provas' | 'subjects_manage';
+export type Tab = 'dashboard' | 'focus' | 'resumo' | 'weekly' | 'stats' | 'questoes' | 'calendario' | 'conquistas' | 'settings' | 'share' | 'ajuda' | 'provas' | 'subjects_manage' | 'revisar';
 
 export type Language = 'pt-BR' | 'en-US' | 'es-ES' | 'ru-RU';
 
@@ -33,12 +33,22 @@ export interface UserSettings {
   isEpicMode?: boolean;
 }
 
+export interface ReviewState {
+  reviewCount: number;
+  correctTotal: number;
+  incorrectTotal: number;
+  dueAt: string; // ISO datetime
+  updatedAt: string; // ISO datetime
+}
+
 export interface AppState {
   subjects: string[];
   subjectColors: Record<string, string>; // subject -> hex color
   topics: Record<string, string[]>; // subject -> [topic1, topic2...]
   logs: StudyLog[];
-  goals: Record<string, number>; // hours per week
+  goals: Record<string, number>; // hours per week (subject goals)
+  topicGoals?: Record<string, number>; // hours per week (topic goals, key: "subject::topic")
+  reviewStates?: Record<string, ReviewState>; // topic-level review state, key: "subject::topic"
   questions: Record<string, QuestionData>; // subject -> {correct, incorrect}
   questionLogs: QuestionLog[];
   unlockedAchievements?: string[]; // IDs of action-based achievements

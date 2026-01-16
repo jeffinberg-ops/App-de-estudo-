@@ -26,6 +26,97 @@ export const toLocalISO = (date: Date) => {
 export const getTodayISO = () => toLocalISO(new Date());
 
 /**
+ * Returns start and end date keys for the current week (Monday-Sunday).
+ */
+export const getWeekRange = (): { start: string; end: string } => {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day; // Move to Monday
+  
+  const monday = new Date(now);
+  monday.setDate(now.getDate() + diff);
+  monday.setHours(0, 0, 0, 0);
+  
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23, 59, 59, 999);
+  
+  return {
+    start: toLocalISO(monday),
+    end: toLocalISO(sunday)
+  };
+};
+
+/**
+ * Returns start and end date keys for the previous week.
+ */
+export const getPreviousWeekRange = (): { start: string; end: string } => {
+  const now = new Date();
+  const day = now.getDay();
+  const diff = day === 0 ? -6 : 1 - day;
+  
+  const lastMonday = new Date(now);
+  lastMonday.setDate(now.getDate() + diff - 7);
+  lastMonday.setHours(0, 0, 0, 0);
+  
+  const lastSunday = new Date(lastMonday);
+  lastSunday.setDate(lastMonday.getDate() + 6);
+  lastSunday.setHours(23, 59, 59, 999);
+  
+  return {
+    start: toLocalISO(lastMonday),
+    end: toLocalISO(lastSunday)
+  };
+};
+
+/**
+ * Creates a topic key from subject and topic.
+ */
+export const createTopicKey = (subject: string, topic: string): string => {
+  return `${subject}::${topic}`;
+};
+
+/**
+ * Parses a topic key to extract subject and topic.
+ */
+export const parseTopicKey = (key: string): { subject: string; topic: string } => {
+  const parts = key.split('::');
+  return {
+    subject: parts[0] || '',
+    topic: parts[1] || ''
+  };
+};
+
+/**
+ * Calculates the base interval in days based on review count.
+ */
+export const getBaseInterval = (reviewCount: number): number => {
+  if (reviewCount <= 1) return 1;
+  if (reviewCount === 2) return 3;
+  if (reviewCount === 3) return 7;
+  if (reviewCount === 4) return 14;
+  return 30; // 5+
+};
+
+/**
+ * Calculates the difficulty multiplier based on error rate.
+ */
+export const getDifficultyMultiplier = (errorRate: number): number => {
+  const mult = 1 - 0.7 * errorRate;
+  return Math.max(0.3, Math.min(1, mult)); // clamp between 0.3 and 1
+};
+
+/**
+ * Calculates days between two date strings (YYYY-MM-DD).
+ */
+export const daysBetween = (dateStr1: string, dateStr2: string): number => {
+  const d1 = new Date(dateStr1);
+  const d2 = new Date(dateStr2);
+  const diffTime = d2.getTime() - d1.getTime();
+  return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+};
+
+/**
  * Calcula a sequência de dias seguidos (streak).
  */
 export const calculateStreak = (logs: StudyLog[]): number => {
