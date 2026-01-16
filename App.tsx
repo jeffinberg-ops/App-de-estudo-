@@ -224,26 +224,30 @@ const App: React.FC = () => {
   useEffect(() => {
     if (!isDataLoaded) return;
     
+    // Only auto-switch if user is still on the default dark theme
+    // This prevents overriding manual theme selections
+    if (appData.settings.theme !== 'dark') return;
+    
     const totalSeconds = appData.logs.reduce((acc, log) => acc + log.duration, 0);
     const totalHours = totalSeconds / 3600;
     const currentStreak = calculateStreak(appData.logs);
     
     // Check if Elite theme should be auto-applied (100 hours)
-    if (totalHours >= 100 && appData.settings.theme === 'dark') {
+    if (totalHours >= 100) {
       setAppData(prev => ({
         ...prev,
         settings: { ...prev.settings, theme: 'elite' }
       }));
     }
-    
     // Check if Mestre theme should be auto-applied (30 consecutive days)
-    if (currentStreak >= 30 && appData.settings.theme === 'dark') {
+    // Only check this if Elite wasn't just unlocked
+    else if (currentStreak >= 30) {
       setAppData(prev => ({
         ...prev,
         settings: { ...prev.settings, theme: 'mestre' }
       }));
     }
-  }, [appData.logs.length, isDataLoaded, appData.settings.theme, setAppData, appData.logs]);
+  }, [appData.logs.length, isDataLoaded, appData.settings.theme, setAppData]);
 
   const [timerSession, setTimerSessionState] = useState({
     mode: 'pomodoro' as TimerMode,
