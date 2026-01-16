@@ -242,15 +242,13 @@ const App: React.FC = () => {
         lastSessionAccuracy: 0.8
       };
 
-      // Scenario 2: Spike with worsening (currently in recovery mode)
+      // Scenario 2: Spike with worsening (currently in recovery mode) - Due TODAY
       const topic2Key = createTopicKey('Matemática', testTopics[1]);
-      const nextReview2 = new Date();
-      nextReview2.setDate(nextReview2.getDate() + 1); // Due tomorrow (1 day recovery interval)
       newReviewStates[topic2Key] = {
         reviewCount: 10,
         correctTotal: 90,
         incorrectTotal: 50,
-        dueAt: nextReview2.toISOString(),
+        dueAt: new Date().toISOString(), // Due today to show in review list
         updatedAt: new Date().toISOString(),
         inRecoveryMode: true,
         previousInterval: 180,
@@ -258,15 +256,13 @@ const App: React.FC = () => {
         lastSessionAccuracy: 0.2
       };
 
-      // Scenario 3: Currently in recovery with marginal performance
+      // Scenario 3: Currently in recovery with marginal performance - Due TODAY
       const topic3Key = createTopicKey('Matemática', testTopics[2]);
-      const nextReview3 = new Date();
-      nextReview3.setDate(nextReview3.getDate() + 2); // Due in 2 days
       newReviewStates[topic3Key] = {
         reviewCount: 10,
         correctTotal: 96,
         incorrectTotal: 24,
-        dueAt: nextReview3.toISOString(),
+        dueAt: new Date().toISOString(), // Due today to show in review list
         updatedAt: new Date().toISOString(),
         inRecoveryMode: true,
         previousInterval: 169,
@@ -288,7 +284,7 @@ const App: React.FC = () => {
         }
       };
     });
-    alert("✅ Dados de teste do Sistema de Recuperação Adaptativa gerados!\n\n🎯 3 tópicos criados em 'Matemática':\n1. Função Spike+Recuperação (recuperado com sucesso)\n2. Função Spike+Piora (em modo recuperação - tentativa 2)\n3. Função Recuperação Tardia (em modo recuperação - tentativa 1)\n\nVá para a aba 'Revisar' para ver os indicadores de recuperação!");
+    alert("✅ Dados de teste do Sistema de Recuperação Adaptativa gerados!\n\n🎯 3 tópicos criados em 'Matemática' (todos para HOJE):\n1. Função Spike+Recuperação ✅ (recuperado com sucesso)\n2. Função Spike+Piora 🔴 (em modo recuperação - tentativa 3)\n3. Função Recuperação Tardia 🟡 (em modo recuperação - tentativa 2)\n\n💡 Vá para a aba 'Revisar' para ver os indicadores de recuperação laranja!");
   }, [setAppData]);
 
   useEffect(() => {
