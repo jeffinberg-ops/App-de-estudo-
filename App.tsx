@@ -16,15 +16,10 @@ import ShareView from './components/ShareView';
 import HelpView from './components/HelpView';
 import ExamsView from './components/ExamsView';
 import ManageSubjectsView from './components/ManageSubjectsView';
-import AuthWrapper from './components/AuthWrapper';
 import { TRANSLATIONS } from './translations';
 import { ACHIEVEMENTS } from './constants/achievements';
 import { getData, saveData } from './services/db';
 import { getTodayISO } from './utils';
-import { onAuthChange, logOut } from './services/auth';
-import { getUserData, saveUserData, mergeAppData } from './services/sync';
-import { isFirebaseConfigured } from './services/firebase';
-import type { User } from 'firebase/auth';
 
 const DEFAULT_COLORS = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#0ea5e9', '#8b5cf6', '#f97316', '#84cc16', '#ec4899', '#64748b'];
 const START_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
@@ -51,9 +46,6 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [currentDate, setCurrentDate] = useState(getTodayISO());
-  const [user, setUser] = useState<User | null>(null);
-  const [isAuthChecking, setIsAuthChecking] = useState(true);
-  const [isSyncing, setIsSyncing] = useState(false);
   
   const [appData, setAppDataState] = useState<AppState>(INITIAL_STATE);
 
@@ -91,66 +83,13 @@ const App: React.FC = () => {
     loadData();
   }, []);
 
-  // Listener de autenticação
-  useEffect(() => {
-    if (!isFirebaseConfigured()) {
-      setIsAuthChecking(false);
-      return;
-    }
-
-    const unsubscribe = onAuthChange(async (firebaseUser) => {
-      setUser(firebaseUser);
-      setIsAuthChecking(false);
-
-      if (firebaseUser && isDataLoaded) {
-        // Usuário fez login - sincronizar dados
-        setIsSyncing(true);
-        try {
-          // Buscar dados do Firebase
-          const remoteData = await getUserData(firebaseUser.uid);
-          
-          if (remoteData) {
-            // Mesclar dados locais com remotos
-            const localData = appData;
-            const mergedData = mergeAppData(localData, remoteData);
-            
-            // Atualizar estado local
-            setAppDataState(mergedData);
-            await saveData('focus-app-data', mergedData);
-            
-            // Salvar no Firebase
-            await saveUserData(firebaseUser.uid, mergedData);
-          } else {
-            // Primeira vez do usuário - salvar dados locais no Firebase
-            await saveUserData(firebaseUser.uid, appData);
-          }
-        } catch (error) {
-          console.error('Erro ao sincronizar dados:', error);
-          // Notificar o usuário sobre erro de sincronização
-          // mas permitir que continue usando o app offline
-          alert('Aviso: Não foi possível sincronizar seus dados com a nuvem. Suas alterações serão salvas localmente e sincronizadas quando a conexão for restaurada.');
-        } finally {
-          setIsSyncing(false);
-        }
-      }
-    });
-
-    return () => unsubscribe();
-  }, [isDataLoaded, appData]);
-
   const setAppData = useCallback((updater: (prev: AppState) => AppState) => {
     setAppDataState(prev => {
       const next = updater(prev);
       saveData('focus-app-data', next).catch(console.error);
-      
-      // Sincronizar com Firebase se usuário estiver logado
-      if (user && isFirebaseConfigured()) {
-        saveUserData(user.uid, next).catch(console.error);
-      }
-      
       return next;
     });
-  }, [user]);
+  }, []);
 
   const checkAchievements = useCallback(() => {
     setAppData(prev => {
@@ -569,45 +508,13 @@ const App: React.FC = () => {
     });
   };
 
-  const handleLogout = useCallback(async () => {
-    try {
-      await logOut();
-      setUser(null);
-      // Manter os dados locais, apenas desconectar
-    } catch (error) {
-      console.error('Erro ao fazer logout:', error);
-      alert('Erro ao fazer logout');
-    }
-  }, []);
-
-  const handleAuthSuccess = () => {
-    // A sincronização será tratada pelo listener onAuthChange
-  };
-
-  if (!isDataLoaded || isAuthChecking) {
+  if (!isDataLoaded) {
     return (
       <div className="h-screen w-full bg-[#09090b] flex flex-col items-center justify-center gap-6">
         <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-2xl animate-pulse">F</div>
         <div className="flex items-center gap-2 text-zinc-500 font-bold tracking-widest uppercase text-xs">
           <Loader2 className="animate-spin" size={16} /> 
-          {!isDataLoaded ? 'Carregando Banco de Dados...' : 'Verificando Autenticação...'}
-        </div>
-      </div>
-    );
-  }
-
-  // Se o Firebase está configurado mas o usuário não está logado, mostrar tela de login
-  if (isFirebaseConfigured() && !user) {
-    return <AuthWrapper onAuthSuccess={handleAuthSuccess} theme={appData.settings.theme} />;
-  }
-
-  // Se estiver sincronizando após login, mostrar tela de carregamento
-  if (isSyncing) {
-    return (
-      <div className="h-screen w-full bg-[#09090b] flex flex-col items-center justify-center gap-6">
-        <div className="w-16 h-16 bg-indigo-600 rounded-2xl flex items-center justify-center text-white font-black text-3xl shadow-2xl animate-pulse">F</div>
-        <div className="flex items-center gap-2 text-zinc-500 font-bold tracking-widest uppercase text-xs">
-          <Loader2 className="animate-spin" size={16} /> Sincronizando dados...
+          Carregando Banco de Dados...
         </div>
       </div>
     );
@@ -634,8 +541,6 @@ const App: React.FC = () => {
         selectedAchievementId={appData.selectedAchievementId}
         settings={appData.settings}
         t={t}
-        userEmail={user?.email || undefined}
-        onLogout={user ? handleLogout : undefined}
       />
 
       <main className={`flex-1 overflow-y-auto custom-scrollbar relative pt-16 md:pt-0 transition-all duration-700`}>

@@ -1,6 +1,6 @@
 
 import React, { useMemo } from 'react';
-import { Layout, Zap, Target, BarChart2, Download, CheckSquare, Calendar, Trophy, Settings, Camera, HelpCircle, BookOpen, ClipboardList, Star, Pin, LogOut } from 'lucide-react';
+import { Layout, Zap, Target, BarChart2, Download, CheckSquare, Calendar, Trophy, Settings, Camera, HelpCircle, BookOpen, ClipboardList, Star, Pin } from 'lucide-react';
 import { Tab, UserSettings } from '../types';
 import { ACHIEVEMENTS, Difficulty } from '../constants/achievements';
 
@@ -13,8 +13,6 @@ interface SidebarProps {
   selectedAchievementId?: string;
   settings: UserSettings;
   t: any;
-  userEmail?: string;
-  onLogout?: () => void;
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ 
@@ -25,9 +23,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   unlockedAchievements, 
   selectedAchievementId, 
   settings, 
-  t,
-  userEmail,
-  onLogout
+  t
 }) => {
   const isLight = settings.theme === 'light';
   
@@ -164,22 +160,14 @@ const Sidebar: React.FC<SidebarProps> = ({
       </nav>
 
       <div className={`p-6 shrink-0 border-t ${isLight ? 'border-zinc-200 bg-zinc-50' : 'border-zinc-900'}`}>
-        {userEmail && onLogout && (
-          <>
-            <div className={`mb-3 p-3 rounded-xl text-xs ${isLight ? 'bg-white border border-zinc-200' : 'bg-zinc-900/40 border border-zinc-800'}`}>
-              <div className="text-zinc-500 mb-1 font-semibold">Logado como:</div>
-              <div className={`${isLight ? 'text-zinc-700' : 'text-zinc-300'} truncate font-medium`}>{userEmail}</div>
-            </div>
-            <button 
-              onClick={onLogout}
-              className={`w-full p-3 rounded-xl text-[10px] font-black transition-all flex items-center justify-center gap-2 border uppercase tracking-widest mb-2 ${
-                isLight ? 'bg-white text-red-600 border-red-200 hover:bg-red-50' : 'bg-red-900/20 text-red-400 border-red-800 hover:bg-red-900/30'
-              }`}
-            >
-              <LogOut size={12} /> {t.logout || 'Sair'}
-            </button>
-          </>
-        )}
+        <div className={`mb-3 p-3 rounded-xl text-xs ${isLight ? 'bg-blue-50 border border-blue-200' : 'bg-blue-900/20 border border-blue-800'}`}>
+          <div className={`${isLight ? 'text-blue-800' : 'text-blue-300'} font-semibold`}>
+            💾 {t.offline_mode || 'Modo Offline'}
+          </div>
+          <div className="text-zinc-500 mt-1 text-[10px]">
+            {t.offline_message || 'Seus dados são salvos localmente no dispositivo'}
+          </div>
+        </div>
         <button 
           onClick={onExport}
           className={`w-full p-3 rounded-xl text-[10px] font-black transition-all flex items-center justify-center gap-2 border uppercase tracking-widest ${
