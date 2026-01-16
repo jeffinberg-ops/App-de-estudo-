@@ -14,9 +14,14 @@ const firebaseConfig = {
 
 // Verifica se as credenciais estão configuradas
 const isFirebaseConfigured = () => {
-  return firebaseConfig.apiKey && 
-         firebaseConfig.authDomain && 
-         firebaseConfig.projectId;
+  return !!(
+    firebaseConfig.apiKey && 
+    firebaseConfig.authDomain && 
+    firebaseConfig.projectId &&
+    firebaseConfig.storageBucket &&
+    firebaseConfig.messagingSenderId &&
+    firebaseConfig.appId
+  );
 };
 
 // Inicializa o Firebase apenas se estiver configurado

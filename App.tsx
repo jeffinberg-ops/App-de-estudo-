@@ -126,6 +126,9 @@ const App: React.FC = () => {
           }
         } catch (error) {
           console.error('Erro ao sincronizar dados:', error);
+          // Notificar o usuário sobre erro de sincronização
+          // mas permitir que continue usando o app offline
+          alert('Aviso: Não foi possível sincronizar seus dados com a nuvem. Suas alterações serão salvas localmente e sincronizadas quando a conexão for restaurada.');
         } finally {
           setIsSyncing(false);
         }

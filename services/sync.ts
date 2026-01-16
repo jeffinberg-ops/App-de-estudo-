@@ -67,6 +67,9 @@ export const mergeAppData = (localData: AppState, remoteData: AppState): AppStat
     goals: { ...localData.goals, ...remoteData.goals },
     
     // Combina questões (soma os valores)
+    // Nota: Usa Math.max em vez de soma para evitar duplicação quando os mesmos
+    // dados existem em ambos os locais. Em produção, considere implementar
+    // um sistema de tracking único por tentativa de questão.
     questions: Object.keys({ ...localData.questions, ...remoteData.questions }).reduce((acc, subject) => {
       const local = localData.questions[subject] || { correct: 0, incorrect: 0 };
       const remote = remoteData.questions[subject] || { correct: 0, incorrect: 0 };
