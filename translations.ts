@@ -395,7 +395,7 @@ export const TRANSLATIONS: Record<Language, any> = {
     progressSaved: 'Progreso guardado',
     correctPlaceholder: 'Aciertos',
     incorrectPlaceholder: 'Errores',
-    weeklyGoalsTitle: 'Metas Semanais',
+    weeklyGoalsTitle: 'Metas Semanales',
     weeklyGoalsSubtitle: 'Define tus horas ideales de estudio.',
     manageSubjects: 'Gestionar Materias',
     newSubjectPlaceholder: 'Nueva materia...',

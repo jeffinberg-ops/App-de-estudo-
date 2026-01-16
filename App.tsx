@@ -220,7 +220,11 @@ const App: React.FC = () => {
   const setTimerSession = useCallback((updater: (prev: typeof timerSession) => typeof timerSession) => {
     setTimerSessionState(prev => {
       const next = updater(prev);
-      saveData('focus-timer-session', next).catch(console.error);
+      // Save immediately for manual changes (mode switch, pause, etc.)
+      // Auto-save in timer effect handles periodic saves when timer is running
+      if (!next.pomoActive && !next.stopwatchActive) {
+        saveData('focus-timer-session', next).catch(console.error);
+      }
       return next;
     });
   }, []);
