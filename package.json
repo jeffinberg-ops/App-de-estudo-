@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:joao": "npx tsx test-joao-visual.ts",
+    "test:joao-simple": "npx tsx test-joao-simulation.ts"
   },
   "dependencies": {
     "lucide-react": "^0.562.0",
