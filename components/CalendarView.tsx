@@ -183,7 +183,7 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, reviewStates = {}, ex
                   ))}
                   {uniqueSubjects.length > 1 && (
                     <div className={`text-[9px] italic px-1 ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                      + {uniqueSubjects.length - 1} {t.locale === 'pt-BR' ? 'mais' : 'more'}
+                      + {uniqueSubjects.length - 1} {t.more || 'more'}
                     </div>
                   )}
                   
