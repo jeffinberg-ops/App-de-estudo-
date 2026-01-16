@@ -76,6 +76,18 @@ const App: React.FC = () => {
       try {
         let saved = await getData('focus-app-data');
         if (saved) {
+          // Migration: Convert old examDate/examName to examEvents array
+          if (saved.examDate && saved.examName && !saved.examEvents) {
+            saved.examEvents = [{
+              id: `exam_${Date.now()}`,
+              name: saved.examName,
+              date: saved.examDate
+            }];
+          }
+          // Ensure examEvents is initialized
+          if (!saved.examEvents) {
+            saved.examEvents = [];
+          }
           setAppDataState({ ...INITIAL_STATE, ...saved });
         }
         
