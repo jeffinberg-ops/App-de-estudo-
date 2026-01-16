@@ -548,7 +548,7 @@ const App: React.FC = () => {
         };
       }
     });
-  }, [timerSession, addLog, setAppData, appData.subjects, setTimerSession, updateReviewStateForTopic]);
+  }, [timerSession, addLog, setAppData, appData.subjects, appData.questions, setTimerSession, updateReviewStateForTopic]);
 
   const startBreakSession = useCallback(() => {
     if (breakStartSoundRef.current) breakStartSoundRef.current.play().catch(() => {});
