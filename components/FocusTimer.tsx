@@ -260,6 +260,14 @@ const FocusTimer: React.FC<FocusTimerProps> = ({
             }`}>
               {formatTime(currentTime)}
             </h2>
+            
+            {/* Auto-save indicator */}
+            {isTimerActive && (
+              <div className={`flex items-center gap-2 mb-8 text-xs ${isLight ? 'text-zinc-500' : 'text-zinc-400'} animate-fade-in`}>
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse" />
+                <span>{t.autoSaving}</span>
+              </div>
+            )}
           </div>
 
           <div className="flex gap-5 justify-center mb-8">

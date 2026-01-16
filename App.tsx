@@ -74,6 +74,33 @@ const App: React.FC = () => {
         if (saved) {
           setAppDataState({ ...INITIAL_STATE, ...saved });
         }
+        
+        // Load timer session from IndexedDB with validation
+        let savedSession = await getData('focus-timer-session');
+        if (savedSession && typeof savedSession === 'object') {
+          // Validate required fields exist and have correct types
+          if (
+            typeof savedSession.mode === 'string' &&
+            typeof savedSession.pomoPreset === 'number' &&
+            typeof savedSession.lastTick === 'number'
+          ) {
+            setTimerSessionState({
+              mode: savedSession.mode || 'pomodoro',
+              pomoPreset: savedSession.pomoPreset || 50,
+              breakPreset: savedSession.breakPreset || 10,
+              pomoActive: savedSession.pomoActive || false,
+              pomoTimeLeft: savedSession.pomoTimeLeft || 50 * 60,
+              pomoState: savedSession.pomoState || 'work',
+              stopwatchActive: savedSession.stopwatchActive || false,
+              stopwatchTimeLeft: savedSession.stopwatchTimeLeft || 0,
+              subject: savedSession.subject || '',
+              topic: savedSession.topic || '',
+              sessionCorrect: savedSession.sessionCorrect || '',
+              sessionIncorrect: savedSession.sessionIncorrect || '',
+              lastTick: Date.now() // Reset lastTick to current time
+            });
+          }
+        }
       } catch (e) {
         console.error('Falha ao carregar dados:', e);
       } finally {
@@ -187,11 +214,17 @@ const App: React.FC = () => {
     sessionIncorrect: '',
     lastTick: Date.now()
   });
+  
+  const lastSaveRef = useRef<number>(0);
 
   const setTimerSession = useCallback((updater: (prev: typeof timerSession) => typeof timerSession) => {
     setTimerSessionState(prev => {
       const next = updater(prev);
-      saveData('focus-timer-session', next).catch(console.error);
+      // Save immediately for manual changes (mode switch, pause, etc.)
+      // Auto-save in timer effect handles periodic saves when timer is running
+      if (!next.pomoActive && !next.stopwatchActive) {
+        saveData('focus-timer-session', next).catch(console.error);
+      }
       return next;
     });
   }, []);
@@ -246,7 +279,7 @@ const App: React.FC = () => {
             nextStopwatchTime = prev.stopwatchTimeLeft + deltaSeconds;
           }
 
-          return { 
+          const nextState = { 
             ...prev, 
             pomoTimeLeft: nextPomoTime, 
             pomoActive: nextPomoActive, 
@@ -254,6 +287,16 @@ const App: React.FC = () => {
             stopwatchTimeLeft: nextStopwatchTime,
             lastTick: now 
           };
+          
+          // Auto-save to IndexedDB every 2 seconds to reduce database writes
+          // Only save if at least 2 seconds have passed since last save
+          const timeSinceLastSave = now - lastSaveRef.current;
+          if (timeSinceLastSave >= 2000) {
+            saveData('focus-timer-session', nextState).catch(console.error);
+            lastSaveRef.current = now;
+          }
+          
+          return nextState;
         });
       }, 500);
       return () => clearInterval(timerInterval);
