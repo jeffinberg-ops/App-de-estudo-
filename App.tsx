@@ -16,10 +16,11 @@ import ShareView from './components/ShareView';
 import HelpView from './components/HelpView';
 import ExamsView from './components/ExamsView';
 import ManageSubjectsView from './components/ManageSubjectsView';
+import ReviewView from './components/ReviewView';
 import { TRANSLATIONS } from './translations';
 import { ACHIEVEMENTS } from './constants/achievements';
 import { getData, saveData } from './services/db';
-import { getTodayISO } from './utils';
+import { getTodayISO, createTopicKey, getBaseInterval, getDifficultyMultiplier } from './utils';
 
 const DEFAULT_COLORS = ['#6366f1', '#10b981', '#f43f5e', '#f59e0b', '#0ea5e9', '#8b5cf6', '#f97316', '#84cc16', '#ec4899', '#64748b'];
 const START_SOUND_URL = 'https://assets.mixkit.co/active_storage/sfx/2568/2568-preview.mp3';
@@ -33,6 +34,8 @@ const INITIAL_STATE: AppState = {
   topics: { 'Matemática': [], 'Programação': [], 'Inglês': [] },
   logs: [],
   goals: { 'Matemática': 0, 'Programação': 0, 'Inglês': 0 },
+  topicGoals: {},
+  reviewStates: {},
   questions: { 'Matemática': { correct: 0, incorrect: 0 }, 'Programação': { correct: 0, incorrect: 0 }, 'Inglês': { correct: 0, incorrect: 0 } },
   questionLogs: [],
   unlockedAchievements: [],
@@ -388,6 +391,57 @@ const App: React.FC = () => {
           questionLogs: [...prev.questionLogs, { id: Date.now(), date: new Date().toISOString(), subject: sub, correct, incorrect }]
         }));
       }
+      
+      // Update review state for topic if present
+      if (topic && topic.trim()) {
+        const sub = subject || appData.subjects[0];
+        const topicKey = createTopicKey(sub, topic);
+        const correct = parseInt(sessionCorrect as string) || 0;
+        const incorrect = parseInt(sessionIncorrect as string) || 0;
+        
+        setAppData(prev => {
+          const currentReviewState = prev.reviewStates?.[topicKey] || {
+            reviewCount: 0,
+            correctTotal: 0,
+            incorrectTotal: 0,
+            dueAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+          
+          // Increment review count
+          const newReviewCount = currentReviewState.reviewCount + 1;
+          
+          // Update totals if questions were answered
+          const newCorrectTotal = currentReviewState.correctTotal + correct;
+          const newIncorrectTotal = currentReviewState.incorrectTotal + incorrect;
+          
+          // Calculate error rate
+          const totalQuestions = newCorrectTotal + newIncorrectTotal;
+          const errorRate = totalQuestions > 0 ? newIncorrectTotal / totalQuestions : 0;
+          
+          // Calculate next review date
+          const baseInterval = getBaseInterval(newReviewCount);
+          const difficultyMult = getDifficultyMultiplier(errorRate);
+          const intervalDays = Math.max(1, Math.round(baseInterval * difficultyMult));
+          
+          const nextReviewDate = new Date();
+          nextReviewDate.setDate(nextReviewDate.getDate() + intervalDays);
+          
+          return {
+            ...prev,
+            reviewStates: {
+              ...prev.reviewStates,
+              [topicKey]: {
+                reviewCount: newReviewCount,
+                correctTotal: newCorrectTotal,
+                incorrectTotal: newIncorrectTotal,
+                dueAt: nextReviewDate.toISOString(),
+                updatedAt: new Date().toISOString()
+              }
+            }
+          };
+        });
+      }
     }
 
     setTimerSession(prev => {
@@ -630,6 +684,7 @@ const App: React.FC = () => {
             />
           )}
           {activeTab === 'resumo' && <DailySummary logs={appData.logs} goals={appData.goals} theme={appData.settings.theme} t={t} />}
+          {activeTab === 'revisar' && <ReviewView reviewStates={appData.reviewStates || {}} theme={appData.settings.theme} t={t} />}
           {activeTab === 'conquistas' && <Achievements state={appData} onSelectHighlight={(id) => setAppData(prev => ({ ...prev, selectedAchievementId: id }))} onMarkSeen={(id) => setAppData(prev => {
             const viewed = new Set(prev.viewedAchievements || []);
             if (viewed.has(id)) return prev;
@@ -644,7 +699,7 @@ const App: React.FC = () => {
              }));
           }} theme={appData.settings.theme} t={t} />}
           {activeTab === 'calendario' && <CalendarView logs={appData.logs} theme={appData.settings.theme} t={t} />}
-          {activeTab === 'weekly' && <WeeklyGoals subjects={appData.subjects} logs={appData.logs} goals={appData.goals} onSetGoal={(sub, hrs) => setAppData(prev => ({ ...prev, goals: { ...prev.goals, [sub]: hrs } }))} theme={appData.settings.theme} t={t} />}
+          {activeTab === 'weekly' && <WeeklyGoals subjects={appData.subjects} topics={appData.topics} logs={appData.logs} goals={appData.goals} topicGoals={appData.topicGoals || {}} onSetGoal={(sub, hrs) => setAppData(prev => ({ ...prev, goals: { ...prev.goals, [sub]: hrs } }))} onSetTopicGoal={(key, hrs) => setAppData(prev => ({ ...prev, topicGoals: { ...prev.topicGoals, [key]: hrs } }))} theme={appData.settings.theme} t={t} />}
           {activeTab === 'stats' && <Stats subjects={appData.subjects} logs={appData.logs} subjectColors={appData.subjectColors || {}} theme={appData.settings.theme} t={t} />}
           {activeTab === 'subjects_manage' && <ManageSubjectsView subjects={appData.subjects} topics={appData.topics} subjectColors={appData.subjectColors || {}} onAddSubject={addSubject} onDeleteSubject={deleteSubject} onRenameSubject={renameSubject} onSetColor={(s, c) => setAppData(prev => ({ ...prev, subjectColors: { ...prev.subjectColors, [s]: c } }))} onAddTopic={(s, tp) => setAppData(prev => ({ ...prev, topics: { ...prev.topics, [s]: [...(prev.topics[s] || []), tp] } }))} onDeleteTopic={(s, tp) => setAppData(prev => ({ ...prev, topics: { ...prev.topics, [s]: prev.topics[s].filter(t => t !== tp) } }))} onRenameTopic={renameTopic} theme={appData.settings.theme} t={t} />}
           {activeTab === 'provas' && <ExamsView examDate={appData.examDate} examName={appData.examName} onUpdateExam={(n, d) => setAppData(prev => ({ ...prev, examName: n, examDate: d }))} theme={appData.settings.theme} t={t} />}

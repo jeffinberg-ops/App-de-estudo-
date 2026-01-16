@@ -215,38 +215,70 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, theme = 'dark', t }) 
             <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
               {selectedDayLogs.length > 0 ? (
                 <div className="space-y-4">
-                  {selectedDayLogs.map((log) => (
-                    <div 
-                      key={log.id} 
-                      className={`p-5 rounded-[1.5rem] border transition-all hover:scale-[1.02] flex flex-col gap-3 ${
-                        isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-zinc-900/40 border-zinc-800'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isLight ? 'bg-white border border-zinc-200' : 'bg-zinc-800'}`}>
-                            {log.type === 'Pomodoro' ? <Zap size={18} className="text-amber-500" /> : <Clock size={18} className="text-indigo-500" />}
+                  {/* Summary by Subject -> Topic */}
+                  {(() => {
+                    // Group by subject and topic
+                    const grouped: Record<string, Record<string, { duration: number; count: number }>> = {};
+                    
+                    selectedDayLogs.forEach(log => {
+                      if (!grouped[log.subject]) {
+                        grouped[log.subject] = {};
+                      }
+                      const topicKey = log.topic || t.noTopicLabel || 'Geral';
+                      if (!grouped[log.subject][topicKey]) {
+                        grouped[log.subject][topicKey] = { duration: 0, count: 0 };
+                      }
+                      grouped[log.subject][topicKey].duration += log.duration;
+                      grouped[log.subject][topicKey].count += 1;
+                    });
+                    
+                    return (
+                      <div className="space-y-4">
+                        <h3 className={`text-sm font-black uppercase tracking-widest ${isLight ? 'text-zinc-500' : 'text-zinc-500'}`}>
+                          {t.breakdown || 'Detalhamento'}
+                        </h3>
+                        
+                        {Object.entries(grouped).map(([subject, topics]) => (
+                          <div key={subject} className={`p-4 rounded-2xl border ${
+                            isLight ? 'bg-zinc-50 border-zinc-200' : 'bg-zinc-900/40 border-zinc-800'
+                          }`}>
+                            <div className="flex items-center justify-between mb-3">
+                              <h4 className={`font-bold ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+                                {subject}
+                              </h4>
+                              <span className="text-sm font-mono font-bold text-indigo-600">
+                                {formatTimeShort(Object.values(topics).reduce((sum, t) => sum + t.duration, 0))}
+                              </span>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              {Object.entries(topics).map(([topic, data]) => (
+                                <div 
+                                  key={topic}
+                                  className={`flex items-center justify-between px-3 py-2 rounded-lg ${
+                                    isLight ? 'bg-white border border-zinc-200' : 'bg-zinc-950/40'
+                                  }`}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <BookOpen size={14} className={isLight ? 'text-zinc-400' : 'text-zinc-500'} />
+                                    <span className={`text-sm ${isLight ? 'text-zinc-700' : 'text-zinc-300'}`}>
+                                      {topic}
+                                    </span>
+                                    <span className={`text-xs ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`}>
+                                      ({data.count} {data.count === 1 ? (t.session || 'sessão') : (t.sessions || 'sessões')})
+                                    </span>
+                                  </div>
+                                  <span className="text-sm font-mono font-bold text-indigo-500">
+                                    {formatTimeShort(data.duration)}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
                           </div>
-                          <div>
-                            <h4 className="font-bold text-sm">{log.subject}</h4>
-                            <p className={`text-[10px] font-black uppercase tracking-widest ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`}>
-                              {log.type} • {new Date(log.date).toLocaleTimeString(t.locale, { hour: '2-digit', minute: '2-digit' })}
-                            </p>
-                          </div>
-                        </div>
-                        <span className="text-sm font-black font-mono text-indigo-600">
-                          {formatTimeShort(log.duration)}
-                        </span>
+                        ))}
                       </div>
-                      
-                      {log.topic && (
-                        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] font-bold ${isLight ? 'bg-zinc-100 text-zinc-600' : 'bg-zinc-950/40 text-zinc-400'}`}>
-                          <BookOpen size={12} className="text-zinc-500" />
-                          {log.topic}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                    );
+                  })()}
                   
                   <div className={`mt-6 pt-6 border-t flex justify-between items-center ${isLight ? 'border-zinc-200' : 'border-zinc-800'}`}>
                     <span className={`text-xs font-black uppercase tracking-widest ${isLight ? 'text-zinc-400' : 'text-zinc-500'}`}>Total do Dia</span>

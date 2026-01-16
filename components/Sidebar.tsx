@@ -47,6 +47,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     { id: 'dashboard' as Tab, icon: Layout, label: t.dashboard },
     { id: 'focus' as Tab, icon: Zap, label: t.focus },
     { id: 'resumo' as Tab, icon: ClipboardList, label: t.summary },
+    { id: 'revisar' as Tab, icon: Calendar, label: t.revisar },
     { id: 'subjects_manage' as Tab, icon: BookOpen, label: t.subjects_manage },
     { id: 'questoes' as Tab, icon: CheckSquare, label: t.questions },
     { id: 'conquistas' as Tab, icon: Trophy, label: t.achievements },
