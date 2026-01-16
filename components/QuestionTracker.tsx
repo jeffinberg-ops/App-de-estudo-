@@ -52,7 +52,7 @@ const CustomTooltip = ({ active, payload, label, isLight, t, subjectColors }: an
                   {name}
                 </span>
               </div>
-              <span className={`text-[11px] font-mono font-black ${isLight ? 'text-indigo-600' : 'text-indigo-400'}`}>
+              <span className={`text-[11px] font-mono font-black theme-accent transition-all duration-500`}>
                 {count as number}
               </span>
             </div>
@@ -196,10 +196,10 @@ const QuestionTracker: React.FC<QuestionTrackerProps> = ({ subjects, questions, 
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+            <div className="p-3 theme-logo-bg rounded-2xl text-white shadow-lg transition-all duration-500">
               <CheckSquare size={24} />
             </div>
-            <h1 className={`text-3xl font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>{t.questionTrackerTitle}</h1>
+            <h1 className={`text-3xl font-black theme-text-primary transition-all duration-500`}>{t.questionTrackerTitle}</h1>
           </div>
           <p className={isLight ? 'text-slate-500 font-medium' : 'text-zinc-500 font-medium'}>{t.questionTrackerSubtitle}</p>
         </div>
@@ -213,7 +213,7 @@ const QuestionTracker: React.FC<QuestionTrackerProps> = ({ subjects, questions, 
                 setActivePoint(null);
               }}
               className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all uppercase tracking-wider ${
-                filter === f ? 'bg-indigo-600 text-white shadow-lg' : isLight ? 'text-slate-50 hover:text-slate-700' : 'text-zinc-500 hover:text-zinc-300'
+                filter === f ? 'theme-logo-bg text-white shadow-lg' : isLight ? 'text-slate-50 hover:text-slate-700' : 'text-zinc-500 hover:text-zinc-300'
               }`}
             >
               {f === 'day' ? t.day : f === 'week' ? t.week : f === 'month' ? t.month : t.year}
@@ -248,7 +248,7 @@ const QuestionTracker: React.FC<QuestionTrackerProps> = ({ subjects, questions, 
               <span className={`text-[10px] font-black uppercase tracking-widest block ${isLight ? 'text-slate-400' : 'text-zinc-500'}`}>
                 Total Geral no Período
               </span>
-              <span className={`text-2xl font-black font-mono ${isLight ? 'text-indigo-600' : 'text-white'}`}>
+              <span className={`text-2xl font-black font-mono theme-text-primary transition-all duration-500`}>
                 {totalInPeriod}
               </span>
             </div>

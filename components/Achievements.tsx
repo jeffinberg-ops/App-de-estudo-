@@ -72,7 +72,7 @@ const Achievements: React.FC<AchievementsProps> = ({ state, onSelectHighlight, o
     <div className="space-y-12 animate-fade-in pb-20">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+          <div className="p-3 theme-logo-bg rounded-2xl text-white shadow-lg transition-all duration-500">
             <Trophy size={24} />
           </div>
           <h1 className={`text-3xl font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>{t.achievements}</h1>

@@ -74,7 +74,7 @@ const DailySummary: React.FC<DailySummaryProps> = ({ logs, goals, theme = 'dark'
       <div className="flex justify-between items-start mb-16 relative z-10">
         <div>
           <div className="flex items-center gap-3 mb-2">
-            <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+            <div className="p-3 theme-logo-bg rounded-2xl text-white shadow-lg transition-all duration-500">
               <ClipboardList size={24} />
             </div>
             <h1 className={`text-4xl font-extrabold tracking-tight ${isLight ? 'text-zinc-900' : 'text-white'}`}>{t.dailyReportTitle}</h1>

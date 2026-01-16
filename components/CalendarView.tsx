@@ -95,10 +95,10 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, reviewStates = {}, ex
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex flex-col gap-2">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+            <div className="p-3 theme-logo-bg rounded-2xl text-white shadow-lg transition-all duration-500">
               <CalendarIcon size={24} />
             </div>
-            <h1 className={`text-3xl font-black ${isLight ? 'text-zinc-900' : 'text-white'}`}>{t.historyTitle}</h1>
+            <h1 className={`text-3xl font-black theme-text-primary transition-all duration-500`}>{t.historyTitle}</h1>
           </div>
           <p className={isLight ? 'text-zinc-500 font-bold' : 'text-zinc-500 font-medium'}>{t.historySubtitle}</p>
         </div>
@@ -162,12 +162,14 @@ const CalendarView: React.FC<CalendarViewProps> = ({ logs, reviewStates = {}, ex
                 <div className="flex justify-between items-start w-full">
                   <span className={`
                     text-xs font-bold w-6 h-6 flex items-center justify-center rounded-lg transition-transform group-hover:scale-110
-                    ${isToday ? 'bg-indigo-600 text-white shadow-lg' : isLight ? 'text-zinc-400' : 'text-zinc-400'}
+                    ${isToday ? 'theme-logo-bg text-white shadow-lg' : isLight ? 'text-zinc-400' : 'text-zinc-400'}
                   `}>
                     {date.getDate()}
                   </span>
                   {totalDuration > 0 && (
-                    <span className="text-[10px] font-mono font-bold text-indigo-400 bg-indigo-500/10 px-1.5 py-0.5 rounded border border-indigo-500/20">
+                    <span className={`text-[10px] font-mono font-bold px-1.5 py-0.5 rounded border transition-all ${
+                      isLight ? 'bg-indigo-50 text-indigo-600 border-indigo-200' : 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20'
+                    }`}>
                       {formatTimeShort(totalDuration)}
                     </span>
                   )}

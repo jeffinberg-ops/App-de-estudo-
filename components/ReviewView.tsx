@@ -89,10 +89,10 @@ const ReviewView: React.FC<ReviewViewProps> = ({ reviewStates, theme = 'dark', t
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+          <div className="p-3 theme-logo-bg rounded-2xl text-white shadow-lg transition-all duration-500">
             <Calendar size={24} />
           </div>
-          <h1 className={`text-3xl font-black ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+          <h1 className={`text-3xl font-black theme-text-primary transition-all duration-500`}>
             {t.reviewTitle || 'Revisar Hoje'}
           </h1>
         </div>
@@ -114,7 +114,7 @@ const ReviewView: React.FC<ReviewViewProps> = ({ reviewStates, theme = 'dark', t
               {t.overdueReviews || 'Atrasados'}
             </span>
           </div>
-          <div className={`text-3xl font-black ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+          <div className={`text-3xl font-black theme-text-primary transition-all duration-500`}>
             {dueTopics.filter(t => t.daysOverdue > 0).length}
           </div>
         </div>
@@ -130,7 +130,7 @@ const ReviewView: React.FC<ReviewViewProps> = ({ reviewStates, theme = 'dark', t
               {t.dueToday || 'Para Hoje'}
             </span>
           </div>
-          <div className={`text-3xl font-black ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+          <div className={`text-3xl font-black theme-text-primary transition-all duration-500`}>
             {dueTopics.filter(t => t.daysOverdue === 0).length}
           </div>
         </div>
@@ -146,7 +146,7 @@ const ReviewView: React.FC<ReviewViewProps> = ({ reviewStates, theme = 'dark', t
               {t.totalTopics || 'Total de Tópicos'}
             </span>
           </div>
-          <div className={`text-3xl font-black ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+          <div className={`text-3xl font-black theme-text-primary transition-all duration-500`}>
             {Object.keys(reviewStates || {}).length}
           </div>
         </div>

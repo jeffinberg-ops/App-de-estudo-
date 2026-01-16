@@ -126,10 +126,10 @@ const Stats: React.FC<StatsProps> = ({ subjects, logs, subjectColors, theme = 'd
     <div className="space-y-10 animate-fade-in pb-20">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+          <div className="p-3 theme-logo-bg rounded-2xl text-white shadow-lg transition-all duration-500">
             <BarChart2 size={24} />
           </div>
-          <h1 className={`text-3xl font-black ${isLight ? 'text-zinc-900' : 'text-white'}`}>{t.stats}</h1>
+          <h1 className={`text-3xl font-black theme-text-primary transition-all duration-500`}>{t.stats}</h1>
         </div>
         <p className={isLight ? 'text-zinc-500 font-bold' : 'text-zinc-500 font-medium'}>{t.weeklyGoalsSubtitle}</p>
       </div>
@@ -147,8 +147,8 @@ const Stats: React.FC<StatsProps> = ({ subjects, logs, subjectColors, theme = 'd
             isLight ? 'bg-white border-zinc-200 shadow-zinc-300/20' : 'bg-[#0c0c0e]/80 border-zinc-800 shadow-black/40'
           }`}>
             <div className="flex items-center justify-between mb-12">
-              <h3 className={`font-black text-xl flex items-center gap-4 uppercase tracking-tighter ${isLight ? 'text-zinc-800' : 'text-zinc-200'}`}>
-                <Layers size={24} className="text-indigo-500" /> {t.timeDistribution}
+              <h3 className={`font-black text-xl flex items-center gap-4 uppercase tracking-tighter theme-text-primary transition-all duration-500`}>
+                <Layers size={24} className="theme-icon transition-all duration-500" /> {t.timeDistribution}
               </h3>
               <div className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest ${isLight ? 'bg-zinc-100 text-zinc-400' : 'bg-zinc-900 text-zinc-500'}`}>
                 <Clock size={12} /> {t.totalHours}
@@ -199,8 +199,8 @@ const Stats: React.FC<StatsProps> = ({ subjects, logs, subjectColors, theme = 'd
           <div className={`p-8 md:p-10 rounded-[2.5rem] border shadow-2xl transition-all duration-500 flex flex-col items-center justify-between ${
             isLight ? 'bg-white border-zinc-200 shadow-zinc-300/20' : 'bg-[#0c0c0e]/80 border-zinc-800 shadow-black/40'
           }`}>
-            <h3 className={`font-black text-xl mb-10 w-full flex items-center gap-4 uppercase tracking-tighter ${isLight ? 'text-zinc-800' : 'text-zinc-200'}`}>
-              <PieChartIcon size={24} className="text-emerald-500" /> Visão Geral
+            <h3 className={`font-black text-xl mb-10 w-full flex items-center gap-4 uppercase tracking-tighter theme-text-primary transition-all duration-500`}>
+              <PieChartIcon size={24} className="theme-icon transition-all duration-500" /> Visão Geral
             </h3>
             <div className="h-[300px] w-full">
               <ResponsiveContainer width="100%" height="100%">
@@ -241,7 +241,7 @@ const Stats: React.FC<StatsProps> = ({ subjects, logs, subjectColors, theme = 'd
                       <div className="w-1.5 h-6 rounded-full" style={{ backgroundColor: item.color }} />
                       <span className={`text-sm font-bold truncate max-w-[120px] ${isLight ? 'text-zinc-700' : 'text-zinc-300'}`}>{item.name}</span>
                     </div>
-                    <span className="text-sm font-black text-indigo-500">{percentage}%</span>
+                    <span className="text-sm font-black theme-accent transition-all duration-500">{percentage}%</span>
                   </div>
                 );
               })}

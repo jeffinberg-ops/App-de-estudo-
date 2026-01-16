@@ -102,13 +102,13 @@ const Sidebar: React.FC<SidebarProps> = ({
           : isLight ? 'border-zinc-200' : 'border-zinc-900'
       }`}>
         <div className="flex items-center gap-3 mb-6 w-full justify-center">
-          <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-black text-xl shadow-lg transition-all duration-500 ${
-            isEpicActive ? 'bg-amber-500 text-purple-950 shadow-amber-500/20' : 'bg-indigo-600 text-white'
+          <div className={`w-9 h-9 rounded-lg flex items-center justify-center font-black text-xl shadow-lg transition-all duration-500 theme-logo-bg ${
+            isEpicActive ? 'bg-amber-500 text-purple-950 shadow-amber-500/20' : 'text-white'
           }`}>
             F
           </div>
-          <span className={`font-black text-2xl tracking-tighter transition-all duration-500 ${
-            isEpicActive ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]' : (isLight ? 'text-zinc-900' : 'text-white')
+          <span className={`font-black text-2xl tracking-tighter transition-all duration-500 theme-text-primary ${
+            isEpicActive ? 'text-amber-400 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]' : ''
           }`}>Focus</span>
         </div>
         
@@ -153,7 +153,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     : 'text-zinc-600 hover:text-white hover:bg-zinc-900/40'
               }`}
             >
-              <Icon size={18} className={isActive ? (isEpicActive ? 'text-purple-950' : 'text-white') : 'text-zinc-600 group-hover:text-zinc-400'} />
+              <Icon size={18} className={`transition-all duration-300 ${isActive ? (isEpicActive ? 'text-purple-950' : 'text-white') : 'theme-icon'}`} />
               <span className={`ml-3 text-sm transition-all ${isActive ? 'font-black' : 'font-semibold'}`}>{item.label}</span>
             </button>
           );

@@ -107,10 +107,10 @@ const WeeklyGoals: React.FC<WeeklyGoalsProps> = ({
     <div className="space-y-8 animate-fade-in">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+          <div className="p-3 theme-logo-bg rounded-2xl text-white shadow-lg transition-all duration-500">
             <Target size={24} />
           </div>
-          <h1 className={`text-3xl font-black ${isLight ? 'text-zinc-900' : 'text-white'}`}>{t.weeklyGoalsTitle}</h1>
+          <h1 className={`text-3xl font-black theme-text-primary transition-all duration-500`}>{t.weeklyGoalsTitle}</h1>
         </div>
         <p className={isLight ? 'text-zinc-500 font-bold' : 'text-zinc-500 font-medium'}>{t.weeklyGoalsSubtitle}</p>
       </div>
@@ -118,10 +118,10 @@ const WeeklyGoals: React.FC<WeeklyGoalsProps> = ({
       {/* Weekly Insights */}
       <div className={`p-6 rounded-3xl border ${isLight ? 'bg-gradient-to-br from-indigo-50 to-white border-indigo-100' : 'glass-panel'}`}>
         <div className="flex items-center gap-3 mb-6">
-          <div className="p-2 bg-indigo-600 rounded-xl text-white">
+          <div className="p-2 theme-logo-bg rounded-xl text-white transition-all duration-500">
             <TrendingUp size={20} />
           </div>
-          <h2 className={`text-xl font-black ${isLight ? 'text-zinc-900' : 'text-white'}`}>
+          <h2 className={`text-xl font-black theme-text-primary transition-all duration-500`}>
             {t.weeklyInsights || 'Insights Semanais'}
           </h2>
         </div>
@@ -234,7 +234,7 @@ const WeeklyGoals: React.FC<WeeklyGoalsProps> = ({
                   </div>
                   <div className={`h-3 rounded-full overflow-hidden shadow-inner ${isLight ? 'bg-zinc-100' : 'bg-zinc-900'}`}>
                     <div 
-                      className={`h-full rounded-full transition-all duration-1000 ${pct >= 100 ? 'bg-emerald-500' : 'bg-indigo-600'}`}
+                      className={`h-full rounded-full transition-all duration-1000 ${pct >= 100 ? 'bg-emerald-500' : 'theme-logo-bg'}`}
                       style={{ width: `${pct}%` }}
                     />
                   </div>
@@ -299,11 +299,7 @@ const WeeklyGoals: React.FC<WeeklyGoalsProps> = ({
             <button
               onClick={handleSetTopicGoal}
               disabled={!selectedSubjectForTopic || !selectedTopicForGoal}
-              className={`px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                isLight 
-                  ? 'bg-indigo-600 text-white hover:bg-indigo-500' 
-                  : 'bg-indigo-600 text-white hover:bg-indigo-500'
-              }`}
+              className={`px-6 py-3 rounded-xl font-bold transition-all disabled:opacity-50 disabled:cursor-not-allowed theme-logo-bg text-white hover:opacity-90`}
             >
               {t.setGoal || 'Definir Meta'}
             </button>

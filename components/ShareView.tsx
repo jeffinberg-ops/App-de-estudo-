@@ -108,7 +108,7 @@ const ShareView: React.FC<ShareViewProps> = ({ state, theme, t }) => {
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div className="space-y-2">
           <div className="flex items-center gap-3">
-            <div className="p-3 bg-indigo-600 rounded-2xl text-white shadow-lg shadow-indigo-600/20">
+            <div className="p-3 theme-logo-bg rounded-2xl text-white shadow-lg transition-all duration-500">
               <Camera size={24} />
             </div>
             <h1 className={`text-4xl font-black ${isLight ? 'text-slate-900' : 'text-white'}`}>{t.shareTitle}</h1>
