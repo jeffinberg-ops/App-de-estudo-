@@ -42,7 +42,7 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
     // Permitir que usuários autenticados leiam/escrevam apenas seus próprios dados
-    match /userData/{userId} {
+    match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
     }
   }
@@ -154,7 +154,7 @@ Se as credenciais do Firebase não estiverem configuradas:
 ## Estrutura de Dados no Firestore
 
 ```
-userData (collection)
+users (collection)
   └── {userId} (document)
       ├── subjects: string[]
       ├── subjectColors: object
