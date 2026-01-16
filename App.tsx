@@ -509,8 +509,9 @@ const App: React.FC = () => {
     if (currentDuration >= 60) {
       const correct = parseInt(sessionCorrect as string) || 0;
       const incorrect = parseInt(sessionIncorrect as string) || 0;
+      const sub = subject || appData.subjects[0];
+      
       if (correct > 0 || incorrect > 0) {
-        const sub = subject || appData.subjects[0];
         const current = appData.questions[sub] || { correct: 0, incorrect: 0 };
         setAppData(prev => ({
           ...prev,
@@ -520,8 +521,9 @@ const App: React.FC = () => {
       }
       
       // Update review state for topic if present
-      const sub = subject || appData.subjects[0];
-      updateReviewStateForTopic(sub, topic, correct, incorrect);
+      if (topic && topic.trim()) {
+        updateReviewStateForTopic(sub, topic, correct, incorrect);
+      }
     }
 
     setTimerSession(prev => {
